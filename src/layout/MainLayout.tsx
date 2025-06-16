@@ -1,0 +1,14 @@
+import { Outlet } from 'react-router-dom'
+
+export default function MainLayout() {
+    return (
+        <div className=' min-h-screen flex flex-col'>
+            <nav className='w-full h-10 bg-gray-400'>
+
+            </nav>
+            <main className=' flex-1 p-6 bg-gray-50'>
+                <Outlet />
+            </main>
+        </div>
+    )
+}
