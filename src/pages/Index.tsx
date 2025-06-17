@@ -3,6 +3,9 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 import type { Empresa } from '../interfaces/Empresa';
 import { FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { Link } from "react-router-dom";
+
+
 
 
 export default function Index() {
@@ -43,7 +46,8 @@ export default function Index() {
 
   if (empresas.length === 0) return <div>No se encontraron empresas</div>;
 
-  return (
+  return (<>
+
     <div className=" flex flex-col w-full px-20">
       <div className="flex items-center justify-between w-full">
         <input type="text" placeholder="🔍 Buscar oficina virtual..." className="w-lg h-10 border border-black rounded-lg pl-5 py-5" />
@@ -65,6 +69,14 @@ export default function Index() {
         ))}
       </ul>
     </div>
-  );
+
+    <div>
+      <nav>
+        <Link to="/">Inicio</Link>
+        <Link to="/form">Formulario</Link>
+      </nav>
+    </div>
+
+  </>);
 }
 

@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import MainLayout from "./layout/MainLayout"
 import Index from "./pages/Index"
+import { Form } from "./pages/form/form";
+
 
 function App() {
 
@@ -9,6 +11,7 @@ function App() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Index />} />
+          <Route path="/form" element={<Form />} />
         </Route>
       </Routes>
     </BrowserRouter>
