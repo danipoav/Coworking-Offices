@@ -70,13 +70,6 @@ export default function Index() {
       </ul>
     </div>
 
-    <div>
-      <nav>
-        <Link to="/">Inicio</Link>
-        <Link to="/form">Formulario</Link>
-      </nav>
-    </div>
-
   </>);
 }
 
