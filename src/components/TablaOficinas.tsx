@@ -58,9 +58,9 @@ export default function TablaOficinas({ datos }: TablaEmpresasProps) {
                 previousLabel={"🡸"}
                 nextLabel={"🡺"}
                 breakClassName="cursor-pointer"
-                containerClassName="flex justify-center mt-4 gap-2 text-sm"
-                marginPagesDisplayed={2}
-                pageRangeDisplayed={3}
+                containerClassName="flex justify-center mt-4 gap-2 text-sm select-none"
+                marginPagesDisplayed={1}
+                pageRangeDisplayed={1}
                 onPageChange={handlePageChange}
                 pageClassName="cursor-pointer"
                 pageLinkClassName="px-4 py-2 rounded-md border bg-blue-200 hover:bg-blue-500 hover:text-white hover:border-black shadow"

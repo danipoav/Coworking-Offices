@@ -10,6 +10,8 @@ export default function Index() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mesActual, setMesActual] = useState(new Date());
+  const [indiceMes, setIndiceMes] = useState(0);
 
   useEffect(() => {
     console.log('useEffect iniciado');
@@ -39,10 +41,45 @@ export default function Index() {
   }, []);
 
 
+
   if (loading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
-
   if (empresas.length === 0) return <div>No se encontraron empresas</div>;
+
+  const availableMonths = Array.from(
+    new Set(
+      empresas.map((item) => {
+        const date = new Date(item.fecha_inicio);
+        const year = date.getFullYear();
+        const month = String(date.getMonth())
+        return `${year}-${month}`;
+      })
+    )
+  ).sort()
+
+  const selectedMonthKey = availableMonths[indiceMes]
+  const [year, month] = selectedMonthKey.split("-").map(Number)
+  const currentMonthDate = new Date(year, month)
+
+  const monthLabel = currentMonthDate.toLocaleDateString("es-ES", {
+    year: "numeric",
+    month: "long"
+  })
+
+  const datosFiltrados = empresas.filter((item) => {
+    const inicio = new Date(item.fecha_inicio)
+    return (
+      inicio.getMonth() === currentMonthDate.getMonth() && inicio.getFullYear() === currentMonthDate.getFullYear()
+    )
+  })
+
+  const handlePreviousMonth = () => {
+    setIndiceMes((prev) => Math.max(prev - 1, 0))
+  }
+
+  const handleNextMonth = () => {
+    setIndiceMes((prev) => Math.min(prev + 1, availableMonths.length - 1))
+  }
 
   return (
     <div className=" flex flex-col w-full px-20">
@@ -54,14 +91,14 @@ export default function Index() {
         <button className="cursor-pointer bg-blue-800 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-blue-700">Añadir</button>
       </div>
       {/* {Cambio de mes} */}
-      <div className=' flex items-center gap-4 text-xl font-medium text-gray-700 my-5'>
-        <FaChevronLeft className="cursor-pointer hover:text-blue-600 transition" />
-        <span>Diciembre 2024</span>
-        <FaChevronRight className="cursor-pointer hover:text-blue-600 transition" />
+      <div className=' flex items-center gap-4 text-xl font-medium text-gray-700 my-5 select-none'>
+        <FaChevronLeft className="cursor-pointer hover:text-blue-600 transition" onClick={handlePreviousMonth} />
+        <span className='w-50 text-center'>{monthLabel.toUpperCase()}</span>
+        <FaChevronRight className="cursor-pointer hover:text-blue-600 transition" onClick={handleNextMonth} />
       </div>
       {/* {Componente generico de la tabla pasando los datos de la bbdd} */}
       <div>
-        <TablaOficinas datos={empresas} />
+        <TablaOficinas datos={datosFiltrados} />
       </div>
     </div>
   );
