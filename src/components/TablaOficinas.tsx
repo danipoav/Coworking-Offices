@@ -8,6 +8,7 @@ type Empresa = {
     contacto: string,
     titular: string,
     fecha_inicio: string
+    renovacion: boolean
 }
 
 type TablaEmpresasProps = {
@@ -43,8 +44,8 @@ export default function TablaOficinas({ datos }: TablaEmpresasProps) {
                 <tbody className=" text-sm text-gray-800">
                     {filasActuales.map((empresa) => (
                         <tr key={empresa.id} className="">
-                            <td className="px-4 py-2">{empresa.razon_social}</td>
-                            <td className="px-4 py-2 text-center">{empresa.modalidad}</td>
+                            <td className="px-4 py-2 flex items-center"><span className={`inline-block w-4 h-4 rounded-full mr-2 ${empresa.renovacion ? 'bg-green-400' : ' bg-orange-400'}`}></span> {empresa.razon_social}</td>
+                            <td className="px-4 py-1 text-center"><span className={`text-white px-4 py-1 font-semibold  rounded-full text-sm inline-block ${empresa.modalidad === 'Anual' ? ' bg-indigo-500' : empresa.modalidad === 'Semestral' ? 'bg-yellow-500' : ' bg-yellow-900'}`}>{empresa.modalidad}</span></td>
                             <td className="px-4 py-2">{empresa.contacto}</td>
                             <td className="px-4 py-2">{empresa.titular}</td>
                             <td className="px-4 py-2">{empresa.fecha_inicio}</td>
@@ -54,16 +55,17 @@ export default function TablaOficinas({ datos }: TablaEmpresasProps) {
             </table>
             <ReactPaginate
                 pageCount={totalPaginas}
-                previousLabel={"←"}
-                nextLabel={"→"}
+                previousLabel={"🡸"}
+                nextLabel={"🡺"}
+                breakClassName="cursor-pointer"
                 containerClassName="flex justify-center mt-4 gap-2 text-sm"
-                marginPagesDisplayed={3}
+                marginPagesDisplayed={2}
                 pageRangeDisplayed={3}
                 onPageChange={handlePageChange}
                 pageClassName="cursor-pointer"
-                pageLinkClassName="px-4 py-2 rounded-md border bg-white hover:bg-gray-100 shadow"
+                pageLinkClassName="px-4 py-2 rounded-md border bg-blue-200 hover:bg-blue-500 hover:text-white hover:border-black shadow"
                 activeClassName="bg-indigo-600 text-white"
-                activeLinkClassName="px-4 py-2 rounded-md border bg-indigo-600 text-white shadow"
+                activeLinkClassName="px-4 py-2 rounded-md border border-black bg-blue-500 text-white shadow"
                 previousClassName="cursor-pointer"
                 previousLinkClassName="px-4 py-2 rounded-md border bg-white hover:bg-gray-100 shadow"
                 nextClassName="cursor-pointer"
