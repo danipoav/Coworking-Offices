@@ -17,6 +17,7 @@ export default function Index() {
   const [error, setError] = useState<string | null>(null);
   const [indiceMes, setIndiceMes] = useState(0);
   const [paginaActual, setPaginaActual] = useState(0)
+  const [busqueda, setBusqueda] = useState('')
 
   useEffect(() => {
     console.log('useEffect iniciado');
@@ -50,7 +51,7 @@ export default function Index() {
   if (loading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
   if (empresas.length === 0) return <div>No se encontraron empresas</div>;
-// {Creo un array con los años y meses que contienen datos, para posteriormente usar este array para filtrar los datos}
+  // {Creo un array con los años y meses que contienen datos, para posteriormente usar este array para filtrar los datos}
   const availableMonths = Array.from(
     new Set(
       empresas.map((item) => {
@@ -84,6 +85,11 @@ export default function Index() {
     const fechaB = new Date(b.fecha_inicio).getTime();
     return fechaA - fechaB;
   })
+  // {Ahora el ultimo filtro para cuando se tenga que usar la barra de busqueda que me devuelva solo los correspondientes}
+  const datosFinales = datosFiltradosOrdenados.filter((empresa) => {
+    const texto = busqueda.toLowerCase();
+    return (empresa.razon_social.toLowerCase().includes(texto))
+  })
   // {Boton para ir al mes anterior}
   const handlePreviousMonth = () => {
     setIndiceMes((prev) => Math.max(prev - 1, 0))
@@ -95,11 +101,19 @@ export default function Index() {
     setPaginaActual(0)
   }
 
+
+
   return (
     <div className=" flex flex-col w-full px-20">
       {/* {Barra de busqueda con sus respectivos botones} */}
       <div className="flex items-center justify-between w-full">
-        <input type="text" placeholder="🔍 Buscar oficina virtual..." className="w-lg h-10 border border-black rounded-lg pl-5 py-5 transition" />
+        <input type="text" placeholder="🔍 Buscar oficina virtual..." className="w-lg h-10 border border-black rounded-lg pl-5 py-5 transition"
+          value={busqueda}
+          onChange={(e) => {
+            setBusqueda(e.target.value);
+            setPaginaActual(0)
+          }
+          } />
         <button className=" cursor-pointer bg-gray-600 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-gray-500 transition flex items-center gap-2"><MdOutlinePendingActions size={18} />
           Pendientes de pago</button>
         <button className="cursor-pointer bg-red-800 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-red-700 transition flex items-center gap-2"><TbTimeDurationOff size={18} />
@@ -115,7 +129,11 @@ export default function Index() {
       </div>
       {/* {Componente generico de la tabla pasando los datos de la bbdd} */}
       <div>
-        <TablaOficinas datos={datosFiltradosOrdenados} paginaActual={paginaActual} setPaginaActual={setPaginaActual} />
+        {datosFinales.length === 0 ? (
+          <p className="text-center text-gray-600 text-lg">No se encontraron resultados.</p>
+        ) : (
+          <TablaOficinas datos={datosFinales} paginaActual={paginaActual} setPaginaActual={setPaginaActual} />
+        )}
       </div>
     </div>
   );
