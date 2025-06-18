@@ -1,4 +1,3 @@
-import { useState } from "react"
 import ReactPaginate from "react-paginate"
 
 type Empresa = {
@@ -13,13 +12,14 @@ type Empresa = {
 
 type TablaEmpresasProps = {
     datos: Empresa[]
+    paginaActual: number
+    setPaginaActual: (page:number) => void
 }
 
 const FILAS_POR_PAGINA = 15
 
-export default function TablaOficinas({ datos }: TablaEmpresasProps) {
+export default function TablaOficinas({ datos, paginaActual,setPaginaActual }: TablaEmpresasProps) {
 
-    const [paginaActual, setPaginaActual] = useState(0)
     const totalPaginas = Math.ceil(datos.length / FILAS_POR_PAGINA)
 
     const handlePageChange = (event: { selected: number }) => {
@@ -55,22 +55,23 @@ export default function TablaOficinas({ datos }: TablaEmpresasProps) {
             </table>
             <ReactPaginate
                 pageCount={totalPaginas}
+                forcePage={paginaActual}
                 previousLabel={"🡸"}
                 nextLabel={"🡺"}
                 breakClassName="cursor-pointer"
-                containerClassName="flex justify-center mt-4 gap-2 text-sm"
-                marginPagesDisplayed={2}
-                pageRangeDisplayed={3}
+                containerClassName="flex justify-center mt-4 gap-2 text-sm select-none"
+                marginPagesDisplayed={1}
+                pageRangeDisplayed={1}
                 onPageChange={handlePageChange}
                 pageClassName="cursor-pointer"
-                pageLinkClassName="px-4 py-2 rounded-md border bg-blue-200 hover:bg-blue-500 hover:text-white hover:border-black shadow"
-                activeClassName="bg-indigo-600 text-white"
-                activeLinkClassName="px-4 py-2 rounded-md border border-black bg-blue-500 text-white shadow"
-                previousClassName="cursor-pointer"
-                previousLinkClassName="px-4 py-2 rounded-md border bg-white hover:bg-gray-100 shadow"
-                nextClassName="cursor-pointer"
-                nextLinkClassName="px-4 py-2 rounded-md border bg-white hover:bg-gray-100 shadow"
-                disabledClassName="opacity-50 cursor-not-allowed"
+                pageLinkClassName="px-4 py-2 rounded-md border bg-blue-200 hover:bg-blue-500 hover:text-white hover:border-black shadow transition"
+                activeClassName="bg-indigo-600 text-white transition"
+                activeLinkClassName="px-4 py-2 rounded-md border border-black bg-blue-500 text-white shadow transition"
+                previousClassName="cursor-pointer transition"
+                previousLinkClassName="px-4 py-2 rounded-md border bg-white hover:bg-gray-100 shadow transition"
+                nextClassName="cursor-pointer transition"
+                nextLinkClassName="px-4 py-2 rounded-md border bg-white hover:bg-gray-100 shadow transition"
+                disabledClassName="opacity-50 cursor-not-allowed transition"
             />
         </div>
     )

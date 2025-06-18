@@ -4,12 +4,20 @@ import { db } from '../firebaseConfig';
 import type { Empresa } from '../interfaces/Empresa';
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import TablaOficinas from '../components/TablaOficinas';
+import { IoPersonAdd } from "react-icons/io5";
+import { TbTimeDurationOff } from "react-icons/tb";
+import { MdOutlinePendingActions } from "react-icons/md";
+
+
 
 
 export default function Index() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [indiceMes, setIndiceMes] = useState(0);
+  const [paginaActual, setPaginaActual] = useState(0)
+  const [busqueda, setBusqueda] = useState('')
 
   useEffect(() => {
     console.log('useEffect iniciado');
@@ -39,29 +47,93 @@ export default function Index() {
   }, []);
 
 
+
   if (loading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
-
   if (empresas.length === 0) return <div>No se encontraron empresas</div>;
+  // {Creo un array con los años y meses que contienen datos, para posteriormente usar este array para filtrar los datos}
+  const availableMonths = Array.from(
+    new Set(
+      empresas.map((item) => {
+        const date = new Date(item.fecha_inicio);
+        const year = date.getFullYear();
+        const month = String(date.getMonth())
+        return `${year}-${month}`;
+      })
+    )
+  ).sort()
+
+  const selectedMonthKey = availableMonths[indiceMes]
+  const [year, month] = selectedMonthKey.split("-").map(Number)
+  const currentMonthDate = new Date(year, month)
+  // {Transformo la fecha a año numerico y mes string para mas visual}
+  const monthLabel = currentMonthDate.toLocaleDateString("es-ES", {
+    year: "numeric",
+    month: "long"
+  })
+  // {FIltro los datos en la fecha que me indica, es decir los de Diciembre de 2024 ejemplo}
+  const datosFiltrados = empresas.filter((item) => {
+    const inicio = new Date(item.fecha_inicio)
+    return (
+      inicio.getMonth() === currentMonthDate.getMonth() &&
+      inicio.getFullYear() === currentMonthDate.getFullYear()
+    )
+  })
+  // {Agarro los datos filtrados por y los ordeno por fecha de mas reciente a mas antiguoL}
+  const datosFiltradosOrdenados = datosFiltrados.sort((a, b) => {
+    const fechaA = new Date(a.fecha_inicio).getTime();
+    const fechaB = new Date(b.fecha_inicio).getTime();
+    return fechaA - fechaB;
+  })
+  // {Ahora el ultimo filtro para cuando se tenga que usar la barra de busqueda que me devuelva solo los correspondientes}
+  const datosFinales = datosFiltradosOrdenados.filter((empresa) => {
+    const texto = busqueda.toLowerCase();
+    return (empresa.razon_social.toLowerCase().includes(texto))
+  })
+  // {Boton para ir al mes anterior}
+  const handlePreviousMonth = () => {
+    setIndiceMes((prev) => Math.max(prev - 1, 0))
+    setPaginaActual(0)
+  }
+  // {Boton para ir al mes posterior}
+  const handleNextMonth = () => {
+    setIndiceMes((prev) => Math.min(prev + 1, availableMonths.length - 1))
+    setPaginaActual(0)
+  }
+
+
 
   return (
     <div className=" flex flex-col w-full px-20">
       {/* {Barra de busqueda con sus respectivos botones} */}
       <div className="flex items-center justify-between w-full">
-        <input type="text" placeholder="🔍 Buscar oficina virtual..." className="w-lg h-10 border border-black rounded-lg pl-5 py-5" />
-        <button className=" cursor-pointer bg-gray-600 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-gray-500">Pendientes de pago</button>
-        <button className="cursor-pointer bg-red-800 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-red-700">Inactivos</button>
-        <button className="cursor-pointer bg-blue-800 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-blue-700">Añadir</button>
+        <input type="text" placeholder="🔍 Buscar oficina virtual..." className="w-lg h-10 border border-black rounded-lg pl-5 py-5 transition"
+          value={busqueda}
+          onChange={(e) => {
+            setBusqueda(e.target.value);
+            setPaginaActual(0)
+          }
+          } />
+        <button className=" cursor-pointer bg-gray-600 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-gray-500 transition flex items-center gap-2"><MdOutlinePendingActions size={18} />
+          Pendientes de pago</button>
+        <button className="cursor-pointer bg-red-800 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-red-700 transition flex items-center gap-2"><TbTimeDurationOff size={18} />
+          Inactivos</button>
+        <button className="cursor-pointer bg-blue-800 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-blue-700 flex items-center gap-2 transition"><IoPersonAdd />
+          Añadir</button>
       </div>
       {/* {Cambio de mes} */}
-      <div className=' flex items-center gap-4 text-xl font-medium text-gray-700 my-5'>
-        <FaChevronLeft className="cursor-pointer hover:text-blue-600 transition" />
-        <span>Diciembre 2024</span>
-        <FaChevronRight className="cursor-pointer hover:text-blue-600 transition" />
+      <div className=' flex items-center gap-4 text-xl font-medium text-gray-700 my-5 select-none'>
+        <FaChevronLeft className="cursor-pointer hover:text-blue-600 transition" onClick={handlePreviousMonth} />
+        <span className='w-50 text-center'>{monthLabel.toUpperCase()}</span>
+        <FaChevronRight className="cursor-pointer hover:text-blue-600 transition" onClick={handleNextMonth} />
       </div>
       {/* {Componente generico de la tabla pasando los datos de la bbdd} */}
       <div>
-        <TablaOficinas datos={empresas} />
+        {datosFinales.length === 0 ? (
+          <p className="text-center text-gray-600 text-lg">No se encontraron resultados.</p>
+        ) : (
+          <TablaOficinas datos={datosFinales} paginaActual={paginaActual} setPaginaActual={setPaginaActual} />
+        )}
       </div>
     </div>
   );
