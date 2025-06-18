@@ -18,6 +18,7 @@ const initialState: EmpresasState = {
 export const fetchEmpresas = createAsyncThunk('empresas/fetch', async () => {
     const db = getFirestore(app)
     const querySnapshot = await getDocs(collection(db, 'EmpresasList'))
+    // {BajasList}
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Empresa[]
 })
 

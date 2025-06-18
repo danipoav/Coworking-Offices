@@ -48,20 +48,37 @@ export default function Index() {
 
 
 
-  if (loading) return <div>Cargando...</div>;
+  if (loading) return <div className="flex items-center justify-center h-[750px]">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 mx-auto mb-4"></div>
+      <p className="text-gray-600 text-lg font-medium">Cargando datos, por favor espera...</p>
+    </div>
+  </div>;
   if (error) return <div>{error}</div>;
   if (empresas.length === 0) return <div>No se encontraron empresas</div>;
+
+  // {Funcion para que me transforme las fechas a fechas Europeas, por tema de meses}
+  const parseFechaEuropea = (fechaStr: string): Date => {
+    const [dia, mes, año] = fechaStr.split("-").map(Number);
+    return new Date(año, mes - 1, dia)
+  }
+  // {Me filtra primero las empresas que no tengan una fecha invalida (NaN)}
+  const empresasValidas = empresas.filter((item) => {
+    const fecha = parseFechaEuropea(item.fecha_inicio)
+    return !isNaN(fecha.getTime())
+  })
+
   // {Creo un array con los años y meses que contienen datos, para posteriormente usar este array para filtrar los datos}
   const availableMonths = Array.from(
     new Set(
-      empresas.map((item) => {
-        const date = new Date(item.fecha_inicio);
+      empresasValidas.map((item) => {
+        const date = parseFechaEuropea(item.fecha_inicio);
         const year = date.getFullYear();
         const month = String(date.getMonth())
         return `${year}-${month}`;
       })
     )
-  ).sort()
+  ).sort().reverse()
 
   const selectedMonthKey = availableMonths[indiceMes]
   const [year, month] = selectedMonthKey.split("-").map(Number)
@@ -73,7 +90,7 @@ export default function Index() {
   })
   // {FIltro los datos en la fecha que me indica, es decir los de Diciembre de 2024 ejemplo}
   const datosFiltrados = empresas.filter((item) => {
-    const inicio = new Date(item.fecha_inicio)
+    const inicio = parseFechaEuropea(item.fecha_inicio)
     return (
       inicio.getMonth() === currentMonthDate.getMonth() &&
       inicio.getFullYear() === currentMonthDate.getFullYear()
@@ -92,12 +109,13 @@ export default function Index() {
   })
   // {Boton para ir al mes anterior}
   const handlePreviousMonth = () => {
-    setIndiceMes((prev) => Math.max(prev - 1, 0))
+    setIndiceMes((prev) => Math.min(prev + 1, availableMonths.length - 1))
+
     setPaginaActual(0)
   }
   // {Boton para ir al mes posterior}
   const handleNextMonth = () => {
-    setIndiceMes((prev) => Math.min(prev + 1, availableMonths.length - 1))
+    setIndiceMes((prev) => Math.max(prev - 1, 0))
     setPaginaActual(0)
   }
 
@@ -130,7 +148,23 @@ export default function Index() {
       {/* {Componente generico de la tabla pasando los datos de la bbdd} */}
       <div>
         {datosFinales.length === 0 ? (
-          <p className="text-center text-gray-600 text-lg">No se encontraron resultados.</p>
+          <p className="text-center text-gray-600 text-lg flex flex-col items-center justify-center h-[550px] gap-4">
+            <svg
+              className="w-16 h-16 text-gray-400 animate-pulse"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 9V5.25m0 0l3 3m-3-3l-3 3M8.25 15v3.75m0 0l3-3m-3 3l-3-3M3 3h18v18H3V3z"
+              />
+            </svg>
+            <span className="text-xl font-semibold text-gray-700">No se encontraron resultados</span>
+            <span className="text-sm text-gray-500">Intenta con otra búsqueda</span>
+          </p>
         ) : (
           <TablaOficinas datos={datosFinales} paginaActual={paginaActual} setPaginaActual={setPaginaActual} />
         )}
