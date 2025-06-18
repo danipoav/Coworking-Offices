@@ -1,4 +1,5 @@
 
+export const red: string = ' #FF3b3b'
 export const green: string = ' #00B2A9'
 export const greenBlue: string = ' #009AA6'
 export const blue: string = ' #0075B0'
