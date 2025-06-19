@@ -21,7 +21,7 @@ export const FormRegister = () => {
             </styles.Column>
         </styles.Container>
 
-        <styles.Container margin='5rem 0 0 0'>
+        <styles.Container margin='4rem 0 0 0'>
             <styles.Column>
                 <styles.EntryVertical>
                     <styles.Title>Razón Social*</styles.Title>
