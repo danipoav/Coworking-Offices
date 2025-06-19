@@ -1,50 +1,24 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs } from "firebase/firestore";
-import { db } from '../firebaseConfig';
-import type { Empresa } from '../interfaces/Empresa';
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import TablaOficinas from '../components/TablaOficinas';
 import { IoPersonAdd } from "react-icons/io5";
 import { TbTimeDurationOff } from "react-icons/tb";
 import { MdOutlinePendingActions } from "react-icons/md";
-
-
-
+import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { fetchEmpresas } from '../store/empresasSlice';
 
 export default function Index() {
-  const [empresas, setEmpresas] = useState<Empresa[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [indiceMes, setIndiceMes] = useState(0);
   const [paginaActual, setPaginaActual] = useState(0)
   const [busqueda, setBusqueda] = useState('')
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { empresas, loading, error } = useAppSelector((state) => state.empresas)
 
   useEffect(() => {
-    console.log('useEffect iniciado');
-    async function fetchEmpresas() {
-      try {
-        console.log('Consultando Firestore...');
-        const querySnapshot = await getDocs(collection(db, 'EmpresaList'));
-        console.log('querySnapshot obtenido:', querySnapshot);
-
-        const empresasData: Empresa[] = [];
-        querySnapshot.forEach(doc => {
-          console.log('Doc:', doc.id, doc.data());
-          const data = doc.data() as Empresa;
-          const { id, ...dataSinId } = data;
-          empresasData.push({ id: doc.id, ...dataSinId });
-        });
-        console.log('Empresas cargadas:', empresasData);
-        setEmpresas(empresasData);
-      } catch (e) {
-        console.error('Error al cargar empresas:', e);
-        setError('Error al cargar empresas');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchEmpresas();
-  }, []);
+    dispatch(fetchEmpresas())
+  }, [dispatch]);
 
 
 
@@ -134,7 +108,7 @@ export default function Index() {
           } />
         <button className=" cursor-pointer bg-gray-600 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-gray-500 transition flex items-center gap-2"><MdOutlinePendingActions size={18} />
           Pendientes de pago</button>
-        <button className="cursor-pointer bg-red-800 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-red-700 transition flex items-center gap-2"><TbTimeDurationOff size={18} />
+        <button onClick={() => { navigate('/inactivos') }} className="cursor-pointer bg-red-800 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-red-700 transition flex items-center gap-2"><TbTimeDurationOff size={18} />
           Inactivos</button>
         <button className="cursor-pointer bg-blue-800 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-blue-700 flex items-center gap-2 transition"><IoPersonAdd />
           Añadir</button>
