@@ -111,7 +111,6 @@ export default function Index() {
           }
           } />
         <button className="cursor-pointer bg-gradient-to-r from-gray-600 to-gray-800 text-white font-semibold border-none rounded-full py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
-
           <MdOutlinePendingActions size={18} />
           Pendientes de pago
         </button>
@@ -131,15 +130,19 @@ export default function Index() {
       </div>
 
       {/* Selector de mes */}
-      <div className="flex items-center gap-4 text-xl font-medium text-gray-700 my-5 select-none">
+      <div className="flex items-center justify-center gap-6 text-lg font-semibold text-gray-800 bg-white shadow-sm border border-gray-200 rounded-xl px-6 py-3 my-4 w-[280px] select-none">
         <FaChevronLeft
-          className="cursor-pointer hover:text-blue-600 transition"
+          className="cursor-pointer text-gray-500 hover:text-blue-600 transition duration-200"
           onClick={handlePreviousMonth}
+          size={18}
         />
-        <span className="w-50 text-center">{monthLabel.toUpperCase()}</span>
+        <span className="text-center tracking-wide uppercase text-gray-700 w-full text-ellipsis overflow-hidden whitespace-nowrap text-sm">
+          {monthLabel}
+        </span>
         <FaChevronRight
-          className="cursor-pointer hover:text-blue-600 transition"
+          className="cursor-pointer text-gray-500 hover:text-blue-600 transition duration-200"
           onClick={handleNextMonth}
+          size={18}
         />
       </div>
 

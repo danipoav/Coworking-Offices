@@ -34,7 +34,7 @@ export default function TablaOficinas({ datos, paginaActual, setPaginaActual, es
 
     return (
         <div className="w-full">
-            <table className="w-full table-auto border-collapse rounded-lg shadow-md mb-10">
+            <table className="w-full table-auto border-collapse rounded-lg shadow-lg mb-10">
                 <thead>
                     <tr className="bg-gray-200 text-left text-sm font-semibold text-gray-700">
                         <th className="px-4 py-3">Razón Social</th>

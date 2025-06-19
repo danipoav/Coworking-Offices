@@ -21,7 +21,7 @@ export default function Inactivos() {
 
     return (
         <div>
-            <div className="border-b relative py-4">
+            <div className="border-b relative py-4 pt-0">
                 <h1 className="font-bold text-4xl text-center">Inactivos</h1>
 
                 <button
