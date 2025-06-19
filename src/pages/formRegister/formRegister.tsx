@@ -1,17 +1,20 @@
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import type { Empresa } from '../../interfaces/Empresa.ts'
+import { FaArrowLeft } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
-import * as styles from './formRegisterStyles.ts'
+import * as styles from '../../common/styles/formRegisterStyles.ts'
 import * as color from '../../common/styles/colors.ts'
 
 
 export const FormRegister = () => {
 
+    const navigate = useNavigate()
     const [newCompany, setNewCompany] = useState<Empresa>({
         id: '',
         razon_social: '',
-        email: [''],
+        email: [],
         fecha_inicio: '',
         fecha_renovacion: '',
         modalidad: '',
@@ -19,26 +22,68 @@ export const FormRegister = () => {
         pendiente_pago: false,
         renovacion: false,
         contacto: '',
-        telefono_contacto: [''],
+        telefono_contacto: [],
         titular: '',
         telefono_titular: '',
         comentarios: '',
         logo: ''
     })
+    const [telefono, setTelefono] = useState('')
+    const [email, setEmail] = useState('')
 
-    const handleStringChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setNewCompany({
-            ...newCompany,
-            [name]: value
-        })
+    const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTelefono(e.target.value);
+    }
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
     }
 
-    
+    const handleAddTelefono = () => {
+        if (telefono.trim()) {
+            setNewCompany(prev => ({
+                ...prev,
+                telefono_contacto: [...prev.telefono_contacto, telefono.trim()]
+            }));
+            setTelefono('')
+        }
+    }
+    const handleAddEmail = () => {
+        if (email.trim()) {
+            setNewCompany(prev => ({
+                ...prev,
+                email: [...prev.email, email.trim()]
+            }));
+            setEmail('')
+        }
+    }
+
+    const handleRemoveTelefono = (index: number) => {
+        setNewCompany((prev) => ({
+            ...prev,
+            telefono_contacto: prev.telefono_contacto.filter(
+                (_, i) => i !== index
+            ),
+        }))
+    }
+    const handleRemoveEmail = (index: number) => {
+        setNewCompany((prev) => ({
+            ...prev,
+            email: prev.email.filter(
+                (_, i) => i !== index
+            ),
+        }))
+    }
+
 
     return (<>
 
-        {console.log(newCompany)}
+        <button
+            onClick={() => navigate("/")}
+            className="absolute cursor-pointer right-0 top-1/2 transform -translate-y-1/2 flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold rounded-full shadow-md hover:scale-105 transition-transform hover:from-blue-500 hover:to-blue-700"
+        >
+            <FaArrowLeft className="text-white" />
+            Inicio
+        </button>
 
         <styles.GlobalDateTimeStyles />
 
@@ -68,16 +113,40 @@ export const FormRegister = () => {
                 <styles.EntryVertical>
                     <styles.Title>E-mail*</styles.Title>
                     <styles.EntryHorizontal>
-                        <styles.InputText type='text' placeholder='Ejm: correo@correo.com'></styles.InputText>
-                        <styles.Button margin="0 0 0 0.5rem" color={color.green} radius="50%">+</styles.Button>
+                        <styles.InputText type='text' placeholder='Ejm: correo@correo.com' value={email} onChange={handleEmailChange}></styles.InputText>
+                        <styles.ButtonAddDelete margin="0 0 0 0.5rem" color={color.green} onClick={handleAddEmail}>+</styles.ButtonAddDelete>
                     </styles.EntryHorizontal>
+                    {newCompany.email.length > 0 && (
+                        <styles.ArrayBox>
+                            {newCompany.email.map((email, index) => (
+                                <styles.ArrayItem key={index}>
+                                    {email}
+                                    <styles.ButtonAddDelete margin="0 0 0 0.35rem" color={color.red} onClick={() => handleRemoveEmail(index)}>
+                                        &times;
+                                    </styles.ButtonAddDelete>
+                                </styles.ArrayItem>
+                            ))}
+                        </styles.ArrayBox>
+                    )}
                 </styles.EntryVertical>
                 <styles.EntryVertical>
                     <styles.Title>Teléfono*</styles.Title>
                     <styles.EntryHorizontal>
-                        <styles.InputText type='text' placeholder='Ejm: 612345678' width='13.5rem' name="telefono" onChange={handleStringChange}></styles.InputText>
-                        <styles.Button margin="0 0 0 0.5rem" color={color.green} radius="50%">+</styles.Button>
+                        <styles.InputText type='text' placeholder='Ejm: 612345678' width='13.5rem' value={telefono} onChange={handleTelefonoChange}></styles.InputText>
+                        <styles.ButtonAddDelete margin="0 0 0 0.5rem" color={color.green} onClick={handleAddTelefono}>+</styles.ButtonAddDelete>
                     </styles.EntryHorizontal>
+                    {newCompany.telefono_contacto.length > 0 && (
+                        <styles.ArrayBox>
+                            {newCompany.telefono_contacto.map((telefono, index) => (
+                                <styles.ArrayItem key={index}>
+                                    {telefono}
+                                    <styles.ButtonAddDelete margin="0 0 0 0.35rem" color={color.red} onClick={() => handleRemoveTelefono(index)}>
+                                        &times;
+                                    </styles.ButtonAddDelete>
+                                </styles.ArrayItem>
+                            ))}
+                        </styles.ArrayBox>
+                    )}
                 </styles.EntryVertical>
                 <styles.EntryVertical>
                     <styles.Title>Fecha de inicio de contratación*</styles.Title>
@@ -125,10 +194,7 @@ export const FormRegister = () => {
                     <styles.Title>No renovar al finalizar el contrato</styles.Title>
                 </styles.EntryHorizontal>
                 <styles.EntryHorizontal>
-                    <styles.ToggleSwitch>
-                        <input type="checkbox" />
-                        <span></span>
-                    </styles.ToggleSwitch>
+                    <styles.CheckBox type='checkbox'></styles.CheckBox>
                     <styles.Title>Procesar pago</styles.Title>
                 </styles.EntryHorizontal>
             </styles.Column>
