@@ -117,30 +117,17 @@ export const TextArea = styled.textarea<{ width?: string }>`
     background-color: ${color.grayBackgroundInput};
 `
 
-export const ButtonBlue = styled.button<{ margin?: string }>`
+export const Button = styled.button<{ margin?: string ; color?: string, radius?: string}>`
     display: flex;
     align-items: center;
     gap: 0.5em;
-    margin:${props => props.margin || '0rem'};
+    margin: ${props => props.margin || '0rem'};
     padding: 0.5em 1em;
-    border-radius: 0.5rem;
+    border-radius: ${props => props.radius || '0.5rem'};
     font-weight: 500;
     cursor: pointer;
     color: ${color.white};
-    background-color: ${color.blue};
-`
-
-export const ButtonGreen = styled.button<{ margin?: string }>`
-    display: flex;
-    align-items: center;
-    gap: 0.5em;
-    margin:${props => props.margin || '0rem'};
-    padding: 0.5em 1em;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    cursor: pointer;
-    color: ${color.white};
-    background-color: ${color.green};
+    background-color: ${props => props.color || 'blue'};
 `
 
 export const IconModifyUser = styled(LuUserRoundPen)`
