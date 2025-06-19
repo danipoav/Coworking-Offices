@@ -107,23 +107,23 @@ export default function Index() {
           value={busqueda}
           onChange={(e) => {
             setBusqueda(e.target.value);
-            setPaginaActual(0);
-          }}
-        />
-        <button className="cursor-pointer bg-gray-600 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-gray-500 transition flex items-center gap-2">
+            setPaginaActual(0)
+          }
+          } />
+        <button className="cursor-pointer bg-gradient-to-r from-gray-600 to-gray-800 text-white font-semibold border-none rounded-full py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
+
           <MdOutlinePendingActions size={18} />
           Pendientes de pago
         </button>
         <button
           onClick={() => navigate('/inactivos')}
-          className="cursor-pointer bg-red-800 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-red-700 transition flex items-center gap-2"
+          className="cursor-pointer bg-gradient-to-r from-red-700 to-red-900 text-white font-semibold border-none rounded-full py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2"
         >
           <TbTimeDurationOff size={18} />
           Inactivos
         </button>
-        <button
+        <button className="cursor-pointer bg-gradient-to-r from-blue-700 to-blue-900 text-white font-semibold border-none rounded-full py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
           onClick={() => navigate('/formregister')}
-          className="cursor-pointer bg-blue-800 font-semibold text-white border rounded-xl py-3 px-10 hover:bg-blue-700 flex items-center gap-2 transition">
           <IoPersonAdd />
           Añadir
         </button>
@@ -163,11 +163,7 @@ export default function Index() {
             <span className="text-sm text-gray-500">Intenta con otra búsqueda</span>
           </p>
         ) : (
-          <TablaOficinas
-            datos={datosFinales}
-            paginaActual={paginaActual}
-            setPaginaActual={setPaginaActual}
-          />
+          <TablaOficinas datos={datosFinales} paginaActual={paginaActual} setPaginaActual={setPaginaActual} estado='activo' />
         )}
       </div>
     </div>
