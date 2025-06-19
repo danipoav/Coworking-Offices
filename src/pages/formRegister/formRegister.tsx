@@ -1,10 +1,44 @@
 
+import { useState, useEffect } from "react"
+import type { Empresa } from '../../interfaces/Empresa.ts'
+
 import * as styles from './formRegisterStyles.ts'
+import * as color from '../../common/styles/colors.ts'
 
 
 export const FormRegister = () => {
 
+    const [newCompany, setNewCompany] = useState<Empresa>({
+        id: '',
+        razon_social: '',
+        email: [''],
+        fecha_inicio: '',
+        fecha_renovacion: '',
+        modalidad: '',
+        myBusiness: false,
+        pendiente_pago: false,
+        renovacion: false,
+        contacto: '',
+        telefono_contacto: [''],
+        titular: '',
+        telefono_titular: '',
+        comentarios: '',
+        logo: ''
+    })
+
+    const handleStringChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        setNewCompany({
+            ...newCompany,
+            [name]: value
+        })
+    }
+
+    
+
     return (<>
+
+        {console.log(newCompany)}
 
         <styles.GlobalDateTimeStyles />
 
@@ -33,11 +67,17 @@ export const FormRegister = () => {
                 </styles.EntryVertical>
                 <styles.EntryVertical>
                     <styles.Title>E-mail*</styles.Title>
-                    <styles.InputText type='text' placeholder='Ejm: correo@correo.com'></styles.InputText>
+                    <styles.EntryHorizontal>
+                        <styles.InputText type='text' placeholder='Ejm: correo@correo.com'></styles.InputText>
+                        <styles.Button margin="0 0 0 0.5rem" color={color.green} radius="50%">+</styles.Button>
+                    </styles.EntryHorizontal>
                 </styles.EntryVertical>
                 <styles.EntryVertical>
                     <styles.Title>Teléfono*</styles.Title>
-                    <styles.InputText type='text' placeholder='Ejm: 612345678' width='13.5rem'></styles.InputText>
+                    <styles.EntryHorizontal>
+                        <styles.InputText type='text' placeholder='Ejm: 612345678' width='13.5rem' name="telefono" onChange={handleStringChange}></styles.InputText>
+                        <styles.Button margin="0 0 0 0.5rem" color={color.green} radius="50%">+</styles.Button>
+                    </styles.EntryHorizontal>
                 </styles.EntryVertical>
                 <styles.EntryVertical>
                     <styles.Title>Fecha de inicio de contratación*</styles.Title>
@@ -71,14 +111,14 @@ export const FormRegister = () => {
                     <styles.TextArea width='20rem'></styles.TextArea>
                 </styles.EntryVertical>
                 <styles.EntryHorizontal>
-                    <styles.ButtonBlue>
+                    <styles.Button color={color.blue}>
                         <styles.IconModifyUser />
                         Modificar
-                    </styles.ButtonBlue>
-                    <styles.ButtonGreen margin='0 0 0 1.5rem'>
+                    </styles.Button>
+                    <styles.Button color={color.red} margin='0 0 0 1.5rem'>
                         <styles.IconAdduser />
                         Dar de alta
-                    </styles.ButtonGreen>
+                    </styles.Button>
                 </styles.EntryHorizontal>
                 <styles.EntryHorizontal>
                     <styles.CheckBox type='checkbox'></styles.CheckBox>
