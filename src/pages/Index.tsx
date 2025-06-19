@@ -1,4 +1,9 @@
 import { useEffect, useState } from 'react';
+import { collection, getDocs } from "firebase/firestore";
+import { db } from '../firebaseConfig';
+import type { Empresa } from '../interfaces/Empresa';
+import { FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import TablaOficinas from '../components/TablaOficinas';
 import { IoPersonAdd } from "react-icons/io5";
@@ -30,6 +35,8 @@ export default function Index() {
   </div>;
   if (error) return <div>{error}</div>;
   if (empresas.length === 0) return <div>No se encontraron empresas</div>;
+
+  return (<>
 
   // {Funcion para que me transforme las fechas a fechas Europeas, por tema de meses}
   const parseFechaEuropea = (fechaStr: string): Date => {
@@ -144,6 +151,7 @@ export default function Index() {
         )}
       </div>
     </div>
-  );
+
+  </>);
 }
 
