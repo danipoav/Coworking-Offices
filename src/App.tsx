@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import MainLayout from "./layout/MainLayout"
 import Index from "./pages/Index"
-import { FormRegister } from "./pages/formRegister/formRegister";
+import { FormSuscribe } from "./pages/formSuscribe/formSuscribe"
+import { FormUnsuscribe } from "./pages/formUnsuscribe/formUnsuscribe"
 import Inactivos from "./pages/Inactivos"
 
 function App() {
@@ -11,7 +12,8 @@ function App() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Index />} />
-          <Route path="/formregister" element={<FormRegister />} />
+          <Route path="/formsuscribe" element={<FormSuscribe />} />
+          <Route path="/formunsuscribe" element={<FormUnsuscribe />} />
           <Route path="/inactivos" element={<Inactivos />} />
         </Route>
       </Routes>

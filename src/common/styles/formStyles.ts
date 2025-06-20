@@ -2,11 +2,38 @@
 import { styled } from 'styled-components'
 import { createGlobalStyle } from 'styled-components'
 
-import { LuUserRoundPen } from "react-icons/lu";
-import { LuUserRoundPlus } from "react-icons/lu";
+import { LuUserRoundPen } from "react-icons/lu"
+import { LuUserRoundPlus } from "react-icons/lu"
+import { LuUserRoundX } from "react-icons/lu"
 
 import * as color from '../../common/styles/colors.ts'
 
+
+export const BackButtonStyled = styled.button`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 6rem;
+    height: 3rem;
+    background: linear-gradient(to right, #2563eb, #1e40af); /* de blue-600 a blue-800 */
+    color: ${color.white};
+    font-weight: 600;
+    border: none;
+    border-radius: 9999px; /* full rounded */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+
+    &:hover {
+        transform: scale(1.1);
+        background: linear-gradient(to right, #3b82f6, #1d4ed8); /* hover:from-blue-500 hover:to-blue-700 */
+    }
+
+    svg {
+        color: white;
+    }
+`
 
 export const GlobalDateTimeStyles = createGlobalStyle`
     input[type="date"]::-webkit-calendar-picker-indicator {
@@ -153,6 +180,15 @@ export const IconModifyUser = styled(LuUserRoundPen)`
 `
 
 export const IconAdduser = styled(LuUserRoundPlus)`
+    vertical-align: middle;
+    padding: 0.2em;
+    width: 2.25rem;
+    height: auto;
+    border-radius: 0.5rem;
+    color: ${color.white};
+`
+
+export const IconRemoveuser = styled(LuUserRoundX)`
     vertical-align: middle;
     padding: 0.2em;
     width: 2.25rem;
