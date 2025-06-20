@@ -46,6 +46,7 @@ export const EntryVertical = styled.div`
 
 export const EntryHorizontal = styled.div`
     display: flex;
+    align-items: center;
     gap: 0.5rem;
 `
 
@@ -117,14 +118,26 @@ export const TextArea = styled.textarea<{ width?: string }>`
     background-color: ${color.grayBackgroundInput};
 `
 
-export const Button = styled.button<{ margin?: string ; color?: string, radius?: string}>`
+export const Button = styled.button<{ margin?: string; padding?: string; color?: string, radius?: string }>`
     display: flex;
     align-items: center;
     gap: 0.5em;
     margin: ${props => props.margin || '0rem'};
-    padding: 0.5em 1em;
+    padding: ${props => props.padding || '0.5em 1em'};
     border-radius: ${props => props.radius || '0.5rem'};
     font-weight: 500;
+    cursor: pointer;
+    color: ${color.white};
+    background-color: ${props => props.color || 'blue'};
+`
+
+export const ButtonAddDelete = styled.button<{ margin?: string; color?: string }>`
+    margin: ${props => props.margin || '0rem'};
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    font-size: 1.25em;
+    font-weight: 700;
     cursor: pointer;
     color: ${color.white};
     background-color: ${props => props.color || 'blue'};
@@ -154,47 +167,22 @@ export const CheckBox = styled.input`
     cursor: pointer;
 `
 
-export const ToggleSwitch = styled.label`
-  position: relative;
-  display: inline-block;
-  width: 3.5rem;
-  height: 2rem;
-
-  input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  span {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: ${color.red}; // apagado
-    transition: 0.4s;
-    border-radius: 2rem;
-
-    &::before {
-      position: absolute;
-      content: "";
-      height: 1.4rem;
-      width: 1.4rem;
-      left: 0.3rem;
-      bottom: 0.3rem;
-      background-color: white;
-      transition: 0.4s;
-      border-radius: 50%;
-    }
-  }
-
-  input:checked + span {
-    background-color: ${color.green}; // encendido
-  }
-
-  input:checked + span::before {
-    transform: translateX(1.5rem);
-  }
+export const ArrayBox = styled.div`
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0.5rem;
+    gap: 0.5rem;
+    width: fit-content;
+    max-width: 35rem;
+    border: 2px solid ${color.grayBorderText};
+    border-radius: 0.4rem;
+    color: ${color.grayBorderText};
+    background-color: ${color.grayBackgroundInput};
 `
+
+export const ArrayItem = styled.span`
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.5rem;
+`;
