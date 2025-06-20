@@ -4,11 +4,11 @@ import type { Empresa } from '../../interfaces/Empresa.ts'
 import { FaArrowLeft } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-import * as styles from '../../common/styles/formRegisterStyles.ts'
+import * as styles from '../../common/styles/formStyles.ts'
 import * as color from '../../common/styles/colors.ts'
 
 
-export const FormRegister = () => {
+export const FormSuscribe = () => {
 
     const navigate = useNavigate()
     const [newCompany, setNewCompany] = useState<Empresa>({
@@ -77,26 +77,23 @@ export const FormRegister = () => {
 
     return (<>
 
-        <button
-            onClick={() => navigate("/")}
-            className="absolute cursor-pointer right-0 top-1/2 transform -translate-y-1/2 flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold rounded-full shadow-md hover:scale-105 transition-transform hover:from-blue-500 hover:to-blue-700"
-        >
-            <FaArrowLeft className="text-white" />
-            Inicio
-        </button>
-
         <styles.GlobalDateTimeStyles />
 
         <styles.Container>
+            <styles.BackButtonStyled onClick={() => navigate("/")}>
+                <FaArrowLeft />
+                Inicio
+            </styles.BackButtonStyled>
+        </styles.Container>
+
+        <styles.Container margin='2rem 0 0 0'>
             <styles.Column>
                 <styles.EntryVertical>
                     <styles.CompanyName>Nombre de la empresa</styles.CompanyName>
                 </styles.EntryVertical>
             </styles.Column>
             <styles.Column>
-                <styles.EntryVertical>
-                    <styles.InputText type='text' placeholder='Inactiva' width='13.5rem'></styles.InputText>
-                </styles.EntryVertical>
+                <styles.InputText type='text' placeholder='Inactiva' width='13.5rem'></styles.InputText>
             </styles.Column>
         </styles.Container>
 
@@ -184,7 +181,7 @@ export const FormRegister = () => {
                         <styles.IconModifyUser />
                         Modificar
                     </styles.Button>
-                    <styles.Button color={color.red} margin='0 0 0 1.5rem'>
+                    <styles.Button color={color.green} margin='0 0 0 1.5rem'>
                         <styles.IconAdduser />
                         Dar de alta
                     </styles.Button>
