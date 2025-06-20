@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchEmpresasInactivas } from "../store/empresasSlice";
+import { fetchEmpresas } from "../store/empresasSlice";
 import TablaOficinas from "../components/TablaOficinas";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 
-export default function Inactivos() {
+export default function PendientesPago() {
     const dispatch = useAppDispatch();
-    const { inactivas, loading, error } = useAppSelector((state) => state.empresas)
+    const { empresas, loading, error } = useAppSelector((state) => state.empresas)
     const [paginaActual, setPaginaActual] = useState(0)
     const navigate = useNavigate()
 
 
     useEffect(() => {
-        dispatch(fetchEmpresasInactivas());
+        dispatch(fetchEmpresas());
     }, [dispatch])
 
     if (loading) return <div className="flex items-center justify-center h-[750px]">
@@ -24,11 +24,14 @@ export default function Inactivos() {
     </div>;
     if (error) return <p>Error: {error}</p>;
 
+    const empresasPendientes = empresas.filter(item => item.pendiente_pago);
+
+
     return (
         <div>
             <div className="border-b border-gray-400 relative py-4 pt-0">
                 <h1 className="text-center text-3xl font-bold text-gray-700 uppercase tracking-widest">
-                    Inactivos
+                    Pendientes de pago
                 </h1>
                 <button
                     onClick={() => navigate("/")}
@@ -39,7 +42,7 @@ export default function Inactivos() {
                 </button>
             </div>
             <div className=" pt-10">
-                <TablaOficinas datos={inactivas} paginaActual={paginaActual} setPaginaActual={setPaginaActual} estado="inactivo" />
+                <TablaOficinas datos={empresasPendientes} paginaActual={paginaActual} setPaginaActual={setPaginaActual} estado="pendiente" />
             </div>
 
         </div>

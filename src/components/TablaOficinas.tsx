@@ -16,7 +16,7 @@ type TablaEmpresasProps = {
     datos: Empresa[]
     paginaActual: number
     setPaginaActual: (page: number) => void
-    estado: 'activo' | 'inactivo'
+    estado: 'activo' | 'inactivo' | 'pendiente'
 }
 
 const FILAS_POR_PAGINA = 15
@@ -34,22 +34,44 @@ export default function TablaOficinas({ datos, paginaActual, setPaginaActual, es
 
     return (
         <div className="w-full">
-            <table className="w-full table-auto border-collapse rounded-lg shadow-md mb-10">
+            <table className="w-full table-auto border-collapse rounded-lg shadow-lg mb-10">
                 <thead>
                     <tr className="bg-gray-200 text-left text-sm font-semibold text-gray-700">
                         <th className="px-4 py-3">Razón Social</th>
                         <th className="px-4 py-3 text-center">Modalidad</th>
                         <th className="px-4 py-3">Contacto</th>
                         <th className="px-4 py-3">Titular</th>
-                        <th className="px-4 py-3">{estado === 'activo' ? 'Inicio' : estado === 'inactivo' ? 'Fecha de baja' : ''}</th>
+                        <th className="px-4 py-3">{estado === 'activo' || 'pendiente' ? 'Inicio' : estado === 'inactivo' ? 'Fecha de baja' : ''}</th>
                     </tr>
                 </thead>
                 <tbody className=" text-sm text-gray-800">
                     {filasActuales.map((empresa) => (
                         <tr key={empresa.id} className="">
-                            <td className="px-4 py-2 flex items-center">{estado === 'activo' ? <span className={`inline-block w-4 h-4 rounded-full mr-2 ${empresa.pendiente_pago ? 'bg-orange-400' : ' bg-green-400'}`}></span> :
-                                <span className={`inline-block w-4 h-4 rounded-full mr-2 ${empresa.renovacion ? 'bg-green-400' : ' bg-red-500'}`}></span>}
-                                {empresa.razon_social}</td>
+                            <td className="px-4 py-2 flex items-center gap-2">
+                                {estado === 'activo' && (
+                                    <span
+                                        className={`inline-block w-3.5 h-3.5 rounded-full ${empresa.pendiente_pago ? 'bg-orange-400' : 'bg-green-400'
+                                            }`}
+                                    />
+                                )}
+
+                                {estado === 'inactivo' && (
+                                    <span
+                                        className={`inline-block w-3.5 h-3.5 rounded-full ${empresa.renovacion ? 'bg-green-400' : 'bg-red-500'
+                                            }`}
+                                    />
+                                )}
+
+                                {estado === 'pendiente' && (
+                                    <span
+                                        className={`inline-block w-3.5 h-3.5 rounded-full ${empresa.pendiente_pago ? 'bg-gray-400' : ''
+                                            }`}
+                                    />
+                                )}
+
+                                <span>{empresa.razon_social}</span>
+                            </td>
+
                             <td className="px-4 py-1 text-center"><span className={`text-white px-4 py-1 font-semibold  rounded-full text-sm inline-block ${empresa.modalidad === 'Anual' ? ' bg-indigo-500' : empresa.modalidad === 'Semestral' ? 'bg-yellow-500' : ' bg-yellow-900'}`}>{empresa.modalidad}</span></td>
                             <td className="px-4 py-2">{empresa.contacto}</td>
                             <td className="px-4 py-2">{empresa.titular}</td>
