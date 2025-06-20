@@ -110,12 +110,14 @@ export default function Index() {
             setPaginaActual(0)
           }
           } />
-        <button className="cursor-pointer bg-gradient-to-r from-gray-600 to-gray-800 text-white font-semibold border-none rounded-full py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
+        <button
+          onClick={() => navigate('pending')}
+          className="cursor-pointer bg-gradient-to-r from-gray-600 to-gray-800 text-white font-semibold border-none rounded-full py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
           <MdOutlinePendingActions size={18} />
           Pendientes de pago
         </button>
         <button
-          onClick={() => navigate('/inactivos')}
+          onClick={() => navigate('/inactive')}
           className="cursor-pointer bg-gradient-to-r from-red-700 to-red-900 text-white font-semibold border-none rounded-full py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2"
         >
           <TbTimeDurationOff size={18} />
