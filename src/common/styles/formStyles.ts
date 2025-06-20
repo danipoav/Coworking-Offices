@@ -2,8 +2,9 @@
 import { styled } from 'styled-components'
 import { createGlobalStyle } from 'styled-components'
 
-import { LuUserRoundPen } from "react-icons/lu";
-import { LuUserRoundPlus } from "react-icons/lu";
+import { LuUserRoundPen } from "react-icons/lu"
+import { LuUserRoundPlus } from "react-icons/lu"
+import { LuUserRoundX } from "react-icons/lu"
 
 import * as color from '../../common/styles/colors.ts'
 
@@ -179,6 +180,15 @@ export const IconModifyUser = styled(LuUserRoundPen)`
 `
 
 export const IconAdduser = styled(LuUserRoundPlus)`
+    vertical-align: middle;
+    padding: 0.2em;
+    width: 2.25rem;
+    height: auto;
+    border-radius: 0.5rem;
+    color: ${color.white};
+`
+
+export const IconRemoveuser = styled(LuUserRoundX)`
     vertical-align: middle;
     padding: 0.2em;
     width: 2.25rem;

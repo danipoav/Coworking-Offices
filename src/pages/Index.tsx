@@ -123,7 +123,7 @@ export default function Index() {
           Inactivos
         </button>
         <button
-          onClick={() => navigate('/formregister')}
+          onClick={() => navigate('/formSuscribe')}
           className="cursor-pointer bg-gradient-to-r from-blue-700 to-blue-900 text-white font-semibold border-none rounded-full py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
           <IoPersonAdd />
           Añadir

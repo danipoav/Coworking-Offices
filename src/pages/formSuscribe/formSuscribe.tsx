@@ -4,11 +4,11 @@ import type { Empresa } from '../../interfaces/Empresa.ts'
 import { FaArrowLeft } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-import * as styles from '../../common/styles/formRegisterStyles.ts'
+import * as styles from '../../common/styles/formStyles.ts'
 import * as color from '../../common/styles/colors.ts'
 
 
-export const FormRegister = () => {
+export const FormSuscribe = () => {
 
     const navigate = useNavigate()
     const [newCompany, setNewCompany] = useState<Empresa>({
@@ -181,7 +181,7 @@ export const FormRegister = () => {
                         <styles.IconModifyUser />
                         Modificar
                     </styles.Button>
-                    <styles.Button color={color.red} margin='0 0 0 1.5rem'>
+                    <styles.Button color={color.green} margin='0 0 0 1.5rem'>
                         <styles.IconAdduser />
                         Dar de alta
                     </styles.Button>
