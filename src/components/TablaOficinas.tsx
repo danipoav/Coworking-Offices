@@ -75,7 +75,7 @@ export default function TablaOficinas({ datos, paginaActual, setPaginaActual, es
                             <td className="px-4 py-1 text-center"><span className={`text-white px-4 py-1 font-semibold  rounded-full text-sm inline-block ${empresa.modalidad === 'Anual' ? ' bg-indigo-500' : empresa.modalidad === 'Semestral' ? 'bg-yellow-500' : ' bg-yellow-900'}`}>{empresa.modalidad}</span></td>
                             <td className="px-4 py-2">{empresa.contacto}</td>
                             <td className="px-4 py-2">{empresa.titular}</td>
-                            <td className="px-4 py-2">{estado === 'activo' ? empresa.fecha_inicio : empresa.fecha_renovacion}</td>
+                            <td className="px-4 py-2">{estado === 'activo' || 'pendiente' ? empresa.fecha_inicio : empresa.fecha_renovacion}</td>
                         </tr>
                     ))}
                 </tbody>
