@@ -1,8 +1,10 @@
 
 import { useState } from "react"
 import type { Empresa } from '../../interfaces/Empresa.ts'
-import { FaArrowLeft } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa"
+import { useNavigate } from "react-router-dom"
+import { Button } from "../../components/button/button.tsx"
+import { PopupText } from "../../components/popupText/popupText.tsx"
 
 import * as styles from '../../common/styles/formStyles.ts'
 import * as color from '../../common/styles/colors.ts'
@@ -30,6 +32,7 @@ export const FormSuscribe = () => {
     })
     const [telefono, setTelefono] = useState('')
     const [email, setEmail] = useState('')
+    const [showPopup, setShowPopup] = useState(false)
 
     const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTelefono(e.target.value);
@@ -78,6 +81,7 @@ export const FormSuscribe = () => {
     return (<>
 
         <styles.GlobalDateTimeStyles />
+        {showPopup && <PopupText />}
 
         <styles.Container>
             <styles.BackButtonStyled onClick={() => navigate("/")}>
@@ -177,17 +181,17 @@ export const FormSuscribe = () => {
                     <styles.TextArea width='20rem'></styles.TextArea>
                 </styles.EntryVertical>
                 <styles.EntryHorizontal>
-                    <styles.Button color={color.blue}>
+                    <Button color={color.blue}>
                         <styles.IconModifyUser />
                         Modificar
-                    </styles.Button>
-                    <styles.Button color={color.green} margin='0 0 0 1.5rem'>
+                    </Button>
+                    <Button color={color.green} margin='0 0 0 1.5rem'>
                         <styles.IconAdduser />
                         Dar de alta
-                    </styles.Button>
+                    </Button>
                 </styles.EntryHorizontal>
                 <styles.EntryHorizontal>
-                    <styles.CheckBox type='checkbox'></styles.CheckBox>
+                    <styles.CheckBox type='checkbox' checked={showPopup} onChange={() => setShowPopup(!showPopup)}></styles.CheckBox>
                     <styles.Title>No renovar al finalizar el contrato</styles.Title>
                 </styles.EntryHorizontal>
                 <styles.EntryHorizontal>
