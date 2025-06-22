@@ -9,6 +9,7 @@ export const Button = (
         padding?: string
         color?: string
         radius?: string
+        onClick?: React.MouseEventHandler<HTMLButtonElement>
     }
 ) => {
 

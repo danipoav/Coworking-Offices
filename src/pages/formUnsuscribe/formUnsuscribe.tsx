@@ -34,6 +34,15 @@ export const FormUnsuscribe = () => {
     const [email, setEmail] = useState('')
     const [showPopup, setShowPopup] = useState(false)
 
+    const handleCancel = () => {
+        console.log('cancel')
+        setShowPopup(false)
+    }
+    const handleSave = (text: string) => {
+        console.log('guardar texto: ', text)
+        setShowPopup(false)
+    }
+
     const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTelefono(e.target.value);
     }
@@ -81,7 +90,9 @@ export const FormUnsuscribe = () => {
     return (<>
 
         <styles.GlobalDateTimeStyles />
-        {showPopup && <PopupText />}
+        {showPopup && (
+            <PopupText onCancel={handleCancel} onSave={handleSave} />
+        )}
 
         <styles.Container>
             <styles.BackButtonStyled onClick={() => navigate("/")}>
