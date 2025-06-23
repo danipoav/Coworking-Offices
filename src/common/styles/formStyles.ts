@@ -1,7 +1,6 @@
 
 import { styled } from 'styled-components'
 import { createGlobalStyle } from 'styled-components'
-
 import { LuUserRoundPen } from "react-icons/lu"
 import { LuUserRoundPlus } from "react-icons/lu"
 import { LuUserRoundX } from "react-icons/lu"

@@ -1,11 +1,11 @@
 
 import { useState } from "react"
-import type { Empresa } from '../../interfaces/Empresa.ts'
+import type { Empresa } from '../interfaces/Empresa.ts'
 import { FaArrowLeft } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-import * as styles from '../../common/styles/formStyles.ts'
-import * as color from '../../common/styles/colors.ts'
+import * as styles from '../common/styles/formStyles.ts'
+import * as color from '../common/styles/colors.ts'
 
 
 export const FormUnsuscribe = () => {
