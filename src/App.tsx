@@ -9,6 +9,8 @@ import Login from "./pages/login";
 import Register from "./pages/register";
 import { PrivateRoute } from "./components/PrivateRoute";
 import { AuthProvider } from "./common/AuthContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -49,6 +51,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <ToastContainer />
     </AuthProvider>
   );
 }

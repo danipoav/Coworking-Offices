@@ -1,30 +1,24 @@
 import ReactPaginate from "react-paginate"
-
-type Empresa = {
-    id: string,
-    razon_social: string,
-    modalidad: string,
-    contacto: string,
-    titular: string,
-    fecha_inicio: string
-    fecha_renovacion: string
-    renovacion: boolean
-    pendiente_pago: boolean
-}
-
-type TablaEmpresasProps = {
-    datos: Empresa[]
-    paginaActual: number
-    setPaginaActual: (page: number) => void
-    estado: 'activo' | 'inactivo' | 'pendiente'
-}
+import type { TablaEmpresasProps } from "../interfaces/TablaEmpresasProps"
+import { useAppDispatch } from "../store/hooks"
+import type { Empresa } from "../interfaces/Empresa"
+import { setEmpresaSeleccionada } from "../store/empresasSlice"
+import { useNavigate } from 'react-router-dom'
 
 const FILAS_POR_PAGINA = 15
 
-export default function TablaOficinas({ datos, paginaActual, setPaginaActual, estado }: TablaEmpresasProps) {
+export default function TablaOficinas({ datos, paginaActual, setPaginaActual, estado, rutaDetalle }: TablaEmpresasProps) {
 
     const totalPaginas = Math.ceil(datos.length / FILAS_POR_PAGINA)
+    const dispatch = useAppDispatch()
+    const navigate = useNavigate()
 
+    const handleSeleccion = (empresa: Empresa) => {
+        dispatch(setEmpresaSeleccionada(empresa))
+        if (rutaDetalle) {
+            navigate(`/${rutaDetalle}`)
+        }
+    }
     const handlePageChange = (event: { selected: number }) => {
         setPaginaActual(event.selected)
     }
@@ -46,7 +40,8 @@ export default function TablaOficinas({ datos, paginaActual, setPaginaActual, es
                 </thead>
                 <tbody className=" text-sm text-gray-800">
                     {filasActuales.map((empresa) => (
-                        <tr key={empresa.id} className="">
+                        <tr key={empresa.id} className="hover:bg-blue-50 cursor-pointer"
+                            onClick={() => handleSeleccion(empresa)} >
                             <td className="px-4 py-2 flex items-center gap-2">
                                 {estado === 'activo' && (
                                     <span

@@ -1,11 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
 import type { Empresa } from '../interfaces/Empresa'
 import { collection, getDocs, getFirestore } from 'firebase/firestore'
 import { app } from '../firebaseConfig'
 
 interface EmpresasState {
-    empresas: Empresa[],
+    empresas: Empresa[]
     inactivas: Empresa[]
+    empresaSeleccionada: Empresa | null
     loading: boolean
     error: string | null
 }
@@ -13,6 +15,7 @@ interface EmpresasState {
 const initialState: EmpresasState = {
     empresas: [],
     inactivas: [],
+    empresaSeleccionada: null,
     loading: false,
     error: null,
 }
@@ -22,15 +25,24 @@ export const fetchEmpresas = createAsyncThunk('empresas/fetch', async () => {
     const querySnapshot = await getDocs(collection(db, 'EmpresaList'))
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Empresa[]
 })
-export const fetchEmpresasInactivas = createAsyncThunk('empresasInactivas/fecth', async () => {
+
+export const fetchEmpresasInactivas = createAsyncThunk('empresasInactivas/fetch', async () => {
     const db = getFirestore(app)
     const querySnapshot = await getDocs(collection(db, 'BajasList'))
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Empresa[]
 })
+
 const empresasSlice = createSlice({
     name: 'empresas',
     initialState,
-    reducers: {},
+    reducers: {
+        setEmpresaSeleccionada(state, action: PayloadAction<Empresa>) {
+            state.empresaSeleccionada = action.payload
+        },
+        limpiarEmpresaSeleccionada(state) {
+            state.empresaSeleccionada = null
+        }
+    },
     extraReducers: builder => {
         builder
             .addCase(fetchEmpresas.pending, state => {
@@ -60,4 +72,5 @@ const empresasSlice = createSlice({
     },
 })
 
+export const { setEmpresaSeleccionada, limpiarEmpresaSeleccionada } = empresasSlice.actions
 export default empresasSlice.reducer
