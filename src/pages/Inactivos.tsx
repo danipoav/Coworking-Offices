@@ -31,7 +31,7 @@ export default function Inactivos() {
                     Inactivos
                 </h1>
                 <button
-                    onClick={() => navigate("/")}
+                    onClick={() => navigate("/home")}
                     className="absolute cursor-pointer right-0 top-1/2 transform -translate-y-1/2 flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold rounded-full shadow-md hover:scale-105 transition-transform hover:from-blue-500 hover:to-blue-700"
                 >
                     <FaArrowLeft className="text-white" />
