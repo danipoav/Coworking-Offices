@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
+import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate();
 
     const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
@@ -13,7 +15,7 @@ function Login() {
             const userCred = await signInWithEmailAndPassword(auth, email, password);
             console.log("Sesión iniciada:", userCred.user.email);
             alert("Bienvenido");
-            // Aquí falta redirigir y guardar user 
+            navigate("/home");
         } catch (error: unknown) {
             if (error instanceof Error) {
                 alert("Error al iniciar sesión: " + error.message);
@@ -55,6 +57,16 @@ function Login() {
                 >
                     Entrar
                 </button>
+
+                <p className="text-center mt-4 text-sm">
+                    ¿No tienes una cuenta?{" "}
+                    <Link
+                        to="/register"
+                        className="text-blue-600 hover:underline font-medium"
+                    >
+                        Regístrate aquí
+                    </Link>
+                </p>
             </form>
         </div>
     );
