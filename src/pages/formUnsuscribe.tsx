@@ -1,13 +1,13 @@
 
 import { useState } from "react"
-import type { Empresa } from '../../interfaces/Empresa.ts'
-import { FaArrowLeft } from "react-icons/fa"
-import { useNavigate } from "react-router-dom"
-import { Button } from "../../components/button/button.tsx"
-import { PopupText } from "../../components/popupText/popupText.tsx"
+import { Button } from "../components/button/button.tsx"
+import { PopupText } from "../components/popupText/popupText.tsx"
+import type { Empresa } from '../interfaces/Empresa.ts'
+import { FaArrowLeft } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
-import * as styles from '../../common/styles/formStyles.ts'
-import * as color from '../../common/styles/colors.ts'
+import * as styles from '../common/styles/formStyles.ts'
+import * as color from '../common/styles/colors.ts'
 
 
 export const FormUnsuscribe = () => {
@@ -95,7 +95,7 @@ export const FormUnsuscribe = () => {
         )}
 
         <styles.Container>
-            <styles.BackButtonStyled onClick={() => navigate("/")}>
+            <styles.BackButtonStyled onClick={() => navigate("/home")}>
                 <FaArrowLeft />
                 Inicio
             </styles.BackButtonStyled>

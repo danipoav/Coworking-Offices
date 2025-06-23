@@ -39,7 +39,7 @@ export default function Inactivos() {
                 </button>
             </div>
             <div className=" pt-10">
-                <TablaOficinas datos={inactivas} paginaActual={paginaActual} setPaginaActual={setPaginaActual} estado="inactivo" />
+                <TablaOficinas datos={inactivas} paginaActual={paginaActual} setPaginaActual={setPaginaActual} estado="inactivo" rutaDetalle='formsuscribe' />
             </div>
 
         </div>
