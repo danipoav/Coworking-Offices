@@ -1,8 +1,10 @@
 
 import { useState } from "react"
 import type { Empresa } from '../../interfaces/Empresa.ts'
-import { FaArrowLeft } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa"
+import { useNavigate } from "react-router-dom"
+import { Button } from "../../components/button/button.tsx"
+import { PopupText } from "../../components/popupText/popupText.tsx"
 
 import * as styles from '../../common/styles/formStyles.ts'
 import * as color from '../../common/styles/colors.ts'
@@ -30,6 +32,16 @@ export const FormUnsuscribe = () => {
     })
     const [telefono, setTelefono] = useState('')
     const [email, setEmail] = useState('')
+    const [showPopup, setShowPopup] = useState(false)
+
+    const handleCancel = () => {
+        console.log('cancel')
+        setShowPopup(false)
+    }
+    const handleSave = (text: string) => {
+        console.log('guardar texto: ', text)
+        setShowPopup(false)
+    }
 
     const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTelefono(e.target.value);
@@ -78,6 +90,9 @@ export const FormUnsuscribe = () => {
     return (<>
 
         <styles.GlobalDateTimeStyles />
+        {showPopup && (
+            <PopupText onCancel={handleCancel} onSave={handleSave} />
+        )}
 
         <styles.Container>
             <styles.BackButtonStyled onClick={() => navigate("/")}>
@@ -93,7 +108,7 @@ export const FormUnsuscribe = () => {
                 </styles.EntryVertical>
             </styles.Column>
             <styles.Column>
-                <styles.InputText type='text' placeholder='Inactiva' width='13.5rem'></styles.InputText>
+                <styles.InputText type='text' placeholder='Activa' width='13.5rem'></styles.InputText>
             </styles.Column>
         </styles.Container>
 
@@ -177,17 +192,17 @@ export const FormUnsuscribe = () => {
                     <styles.TextArea width='20rem'></styles.TextArea>
                 </styles.EntryVertical>
                 <styles.EntryHorizontal>
-                    <styles.Button color={color.blue}>
+                    <Button color={color.blue}>
                         <styles.IconModifyUser />
                         Modificar
-                    </styles.Button>
-                    <styles.Button color={color.red} margin='0 0 0 1.5rem'>
+                    </Button>
+                    <Button color={color.red} margin='0 0 0 1.5rem'>
                         <styles.IconRemoveuser />
                         Dar de baja
-                    </styles.Button>
+                    </Button>
                 </styles.EntryHorizontal>
                 <styles.EntryHorizontal>
-                    <styles.CheckBox type='checkbox'></styles.CheckBox>
+                    <styles.CheckBox type='checkbox' checked={showPopup} onChange={() => setShowPopup(!showPopup)}></styles.CheckBox>
                     <styles.Title>No renovar al finalizar el contrato</styles.Title>
                 </styles.EntryHorizontal>
                 <styles.EntryHorizontal>

@@ -55,7 +55,7 @@ export const GlobalDateTimeStyles = createGlobalStyle`
 
 export const Container = styled.div<{ margin?: string }>`
     display: flex;
-    margin:${props => props.margin || '0rem'};
+    margin: ${props => props.margin || '0rem'};
 `
 
 export const Column = styled.div`
@@ -71,9 +71,10 @@ export const EntryVertical = styled.div`
     gap: 0.5rem;
 `
 
-export const EntryHorizontal = styled.div`
+export const EntryHorizontal = styled.div<{ justifycontent?: string }>`
     display: flex;
     align-items: center;
+    justify-content: ${props => props.justifycontent || 'left'};
     gap: 0.5rem;
 `
 
@@ -145,23 +146,13 @@ export const TextArea = styled.textarea<{ width?: string }>`
     background-color: ${color.grayBackgroundInput};
 `
 
-export const Button = styled.button<{ margin?: string; padding?: string; color?: string, radius?: string }>`
+export const ButtonAddDelete = styled.button<{ margin?: string; color?: string }>`
     display: flex;
     align-items: center;
-    gap: 0.5em;
+    justify-content: center;
     margin: ${props => props.margin || '0rem'};
-    padding: ${props => props.padding || '0.5em 1em'};
-    border-radius: ${props => props.radius || '0.5rem'};
-    font-weight: 500;
-    cursor: pointer;
-    color: ${color.white};
-    background-color: ${props => props.color || 'blue'};
-`
-
-export const ButtonAddDelete = styled.button<{ margin?: string; color?: string }>`
-    margin: ${props => props.margin || '0rem'};
-    width: 2rem;
-    height: 2rem;
+    width: 1.6rem;
+    height: 1.6rem;
     border-radius: 50%;
     font-size: 1.25em;
     font-weight: 700;
