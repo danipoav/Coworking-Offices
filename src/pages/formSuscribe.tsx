@@ -80,7 +80,7 @@ export const FormSuscribe = () => {
         <styles.GlobalDateTimeStyles />
 
         <styles.Container>
-            <styles.BackButtonStyled onClick={() => navigate("/")}>
+            <styles.BackButtonStyled onClick={() => navigate("/home")}>
                 <FaArrowLeft />
                 Inicio
             </styles.BackButtonStyled>
