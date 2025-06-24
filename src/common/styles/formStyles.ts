@@ -1,11 +1,12 @@
 
 import { styled } from 'styled-components'
 import { createGlobalStyle } from 'styled-components'
+
 import { LuUserRoundPen } from "react-icons/lu"
 import { LuUserRoundPlus } from "react-icons/lu"
 import { LuUserRoundX } from "react-icons/lu"
 
-import * as color from '../../common/styles/colors.ts'
+import * as color from '../../common/styles/colors'
 
 
 export const BackButtonStyled = styled.button`
@@ -35,7 +36,7 @@ export const BackButtonStyled = styled.button`
 `
 
 export const GlobalDateTimeStyles = createGlobalStyle`
-    input[type="date"]::-webkit-calendar-picker-indicator {
+    input[type="month"]::-webkit-calendar-picker-indicator {
         position: absolute;
         top: 0;
         right: 0;
@@ -47,7 +48,7 @@ export const GlobalDateTimeStyles = createGlobalStyle`
         cursor: pointer;
     }
 
-    input[type="date"] {
+    input[type="month"] {
         position: relative;
     }
 `
