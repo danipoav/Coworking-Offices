@@ -1,5 +1,5 @@
 
-import * as styles from './buttonStyles.ts'
+import * as styles from './buttonStyles'
 
 
 export const Button = (

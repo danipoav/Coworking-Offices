@@ -1,11 +1,12 @@
 
 import { styled } from 'styled-components'
 import { createGlobalStyle } from 'styled-components'
+
 import { LuUserRoundPen } from "react-icons/lu"
 import { LuUserRoundPlus } from "react-icons/lu"
 import { LuUserRoundX } from "react-icons/lu"
 
-import * as color from '../../common/styles/colors.ts'
+import * as color from '../../common/styles/colors'
 
 
 export const BackButtonStyled = styled.button`
@@ -35,7 +36,7 @@ export const BackButtonStyled = styled.button`
 `
 
 export const GlobalDateTimeStyles = createGlobalStyle`
-    input[type="date"]::-webkit-calendar-picker-indicator {
+    input[type="month"]::-webkit-calendar-picker-indicator {
         position: absolute;
         top: 0;
         right: 0;
@@ -47,27 +48,27 @@ export const GlobalDateTimeStyles = createGlobalStyle`
         cursor: pointer;
     }
 
-    input[type="date"] {
+    input[type="month"] {
         position: relative;
     }
 `
 
-export const Container = styled.div<{ margin?: string }>`
+export const Container = styled.div<{ justifycontent?: string }>`
     display: flex;
-    margin: ${props => props.margin || '0rem'};
+    justify-content: ${props => props.justifycontent || 'left'};
 `
 
-export const Column = styled.div`
+export const Column = styled.div<{ padding?: string }>`
     display: flex;
     flex-direction: column;
-    flex: 1;
+    padding: ${props => props.padding || '1em'};
     gap: 2rem;
 `
 
-export const EntryVertical = styled.div`
+export const EntryVertical = styled.div<{ gap?: string }>`
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: ${props => props.gap || '0.5rem'};
 `
 
 export const EntryHorizontal = styled.div<{ justifycontent?: string }>`

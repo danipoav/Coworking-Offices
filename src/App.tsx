@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 import Index from "./pages/Index";
-import { FormSuscribe } from "./pages/formSuscribe";
 import { FormUnsuscribe } from "./pages/formUnsuscribe";
 import Inactivos from "./pages/Inactivos";
 import PendientesPago from "./pages/PendientesPago";
@@ -30,7 +29,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route path="/formsuscribe" element={<FormSuscribe />} />
             <Route path="/formunsuscribe" element={<FormUnsuscribe />} />
             <Route
               path="/inactive"
