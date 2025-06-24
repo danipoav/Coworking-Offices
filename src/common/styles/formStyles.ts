@@ -53,22 +53,22 @@ export const GlobalDateTimeStyles = createGlobalStyle`
     }
 `
 
-export const Container = styled.div<{ margin?: string }>`
+export const Container = styled.div<{ justifycontent?: string }>`
     display: flex;
-    margin: ${props => props.margin || '0rem'};
+    justify-content: ${props => props.justifycontent || 'left'};
 `
 
-export const Column = styled.div`
+export const Column = styled.div<{ padding?: string }>`
     display: flex;
     flex-direction: column;
-    flex: 1;
+    padding: ${props => props.padding || '1em'};
     gap: 2rem;
 `
 
-export const EntryVertical = styled.div`
+export const EntryVertical = styled.div<{ gap?: string }>`
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: ${props => props.gap || '0.5rem'};
 `
 
 export const EntryHorizontal = styled.div<{ justifycontent?: string }>`

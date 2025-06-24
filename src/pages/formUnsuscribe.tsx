@@ -1,5 +1,8 @@
 
 import { useState } from "react"
+import { useSelector } from 'react-redux'
+import type { RootState } from '../store'
+
 import type { Empresa } from '../interfaces/Empresa'
 import { Modalidad } from "../enums/Modalidad"
 import { FaArrowLeft } from "react-icons/fa"
@@ -31,6 +34,9 @@ export const FormUnsuscribe = () => {
         comentarios: '',
         logo: ''
     })
+    const empresaSeleccionada = useSelector(
+        (state: RootState) => state.empresas.empresaSeleccionada
+    )
     const [telefono, setTelefono] = useState('')
     const [email, setEmail] = useState('')
     const [showPopup, setShowPopup] = useState(false)
@@ -164,30 +170,24 @@ export const FormUnsuscribe = () => {
     return (<>
 
         {console.log(company)}
+        {console.log('==> ', empresaSeleccionada)}
 
         <styles.GlobalDateTimeStyles />
         {showPopup && (
             <PopupText onCancel={handleCancel} onSave={handleSave} />
         )}
 
-        <styles.Container>
-            <styles.BackButtonStyled onClick={() => navigate("/")}>
-                <FaArrowLeft />
-                Inicio
-            </styles.BackButtonStyled>
-        </styles.Container>
-
-        <styles.Container margin='2rem 0 0 0'>
+        <styles.Container justifycontent="space-around">
             <styles.Column>
-                <styles.EntryVertical>
+                <styles.EntryVertical gap="3rem">
+                    <styles.BackButtonStyled onClick={() => navigate("/")}>
+                        <FaArrowLeft />
+                        Inicio
+                    </styles.BackButtonStyled>
                     <styles.CompanyName>Nombre de la empresa</styles.CompanyName>
                     {/* PONER BOTON O SIMILAR PARA SABER "ACTIVA, INACTIVA O PENDIENTE DE PAGO" */}
                 </styles.EntryVertical>
-            </styles.Column>
-        </styles.Container>
 
-        <styles.Container margin='4rem 0 0 0'>
-            <styles.Column>
                 <styles.EntryVertical>
                     <styles.Title>Razón Social*</styles.Title>
                     <styles.InputText name='razon_social' type='text' placeholder='Ejm: Farogems Jewls OU' onChange={handleStringChange}></styles.InputText>
@@ -268,7 +268,7 @@ export const FormUnsuscribe = () => {
                 </styles.EntryVertical>
             </styles.Column>
 
-            <styles.Column>
+            <styles.Column padding="11.5em 1em 1em">
                 <styles.EntryVertical>
                     <styles.Title>Nombre del titular*</styles.Title>
                     <styles.InputText name="titular" type='text' placeholder='Ejm: Juan Pérez Solís' onChange={handleStringChange}></styles.InputText>
