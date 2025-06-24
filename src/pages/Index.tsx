@@ -39,9 +39,11 @@ export default function Index() {
     const [dia, mes, año] = fechaStr.split("-").map(Number);
     return new Date(año, mes - 1, dia);
   };
+  //Principalmente filtro a las que no esten pendientes de pago
+  const noPendingCompanies = empresas.filter((item) => !item.pendiente_pago)
 
   // Filtra empresas con fechas válidas
-  const empresasValidas = empresas.filter((item) => {
+  const empresasValidas = noPendingCompanies.filter((item) => {
     const fecha = parseFechaEuropea(item.fecha_inicio);
     return !isNaN(fecha.getTime());
   });
@@ -67,7 +69,7 @@ export default function Index() {
     month: "long"
   });
 
-  const datosFiltrados = empresas.filter((item) => {
+  const datosFiltrados = noPendingCompanies.filter((item) => {
     const inicio = parseFechaEuropea(item.fecha_inicio);
     return (
       inicio.getMonth() === currentMonthDate.getMonth() &&
@@ -112,20 +114,20 @@ export default function Index() {
           } />
         <button
           onClick={() => navigate('/pending')}
-          className="cursor-pointer bg-gradient-to-r from-gray-600 to-gray-800 text-white font-semibold border-none rounded-full py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
+          className="cursor-pointer bg-gradient-to-r from-gray-600 to-gray-800 text-white font-semibold border-none rounded-lg py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
           <MdOutlinePendingActions size={18} />
           Pendientes de pago
         </button>
         <button
           onClick={() => navigate('/inactive')}
-          className="cursor-pointer bg-gradient-to-r from-red-700 to-red-900 text-white font-semibold border-none rounded-full py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2"
+          className="cursor-pointer bg-gradient-to-r from-red-700 to-red-900 text-white font-semibold border-none rounded-lg py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2"
         >
           <TbTimeDurationOff size={18} />
           Inactivos
         </button>
         <button
           onClick={() => navigate('/formSuscribe')}
-          className="cursor-pointer bg-gradient-to-r from-blue-700 to-blue-900 text-white font-semibold border-none rounded-full py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
+          className="cursor-pointer bg-gradient-to-r from-blue-700 to-blue-900 text-white font-semibold border-none rounded-lg py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
           <IoPersonAdd />
           Añadir
         </button>

@@ -64,7 +64,7 @@ export default function TablaOficinas({ datos, paginaActual, setPaginaActual, es
                                     />
                                 )}
 
-                                <span>{empresa.razon_social}</span>
+                                <span>{empresa.razon_social.toUpperCase()}</span>
                             </td>
 
                             <td className="px-4 py-1 text-center"><span className={`text-white px-4 py-1 font-semibold  rounded-full text-sm inline-block ${empresa.modalidad === 'Anual' ? ' bg-indigo-500' : empresa.modalidad === 'Semestral' ? 'bg-yellow-500' : ' bg-yellow-900'}`}>{empresa.modalidad}</span></td>

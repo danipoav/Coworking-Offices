@@ -180,7 +180,7 @@ export const FormUnsuscribe = () => {
         <styles.Container justifycontent="space-around">
             <styles.Column>
                 <styles.EntryVertical gap="3rem">
-                    <styles.BackButtonStyled onClick={() => navigate("/")}>
+                    <styles.BackButtonStyled onClick={() => navigate("/home")}>
                         <FaArrowLeft />
                         Inicio
                     </styles.BackButtonStyled>
