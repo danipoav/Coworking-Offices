@@ -1,54 +1,80 @@
-# React + TypeScript + Vite
+# 🏢 Coworking Oxygen - Gestión de Empresas
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto es una aplicación web desarrollada para **Coworking Oxygen**, con el objetivo de digitalizar y facilitar la gestión de las empresas que forman parte de su espacio de coworking.
 
-Currently, two official plugins are available:
+## 👥 Autores
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Oscar Gracia  
+- Christian Gil  
+- Daniel Poveda  
 
-## Expanding the ESLint configuration
+## 🚀 Tecnologías utilizadas
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **React** – Interfaz de usuario  
+- **Redux Toolkit** – Gestión global del estado  
+- **Firebase** –  
+  - Firestore como base de datos  
+  - Autenticación de usuarios  
+  - Hosting para despliegue
+- **Vite** – Herramienta de desarrollo y build    
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## 📋 Descripción
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Coworking Oxygen almacenaba sus datos de empresas en hojas de cálculo Excel. Este proyecto transforma esos datos en una **aplicación web dinámica** con funcionalidades como:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Carga y validación de datos desde Excel
+- Visualización de empresas en tablas interactivas
+- Paginación, búsqueda y filtrado
+- Formulario para ver y editar detalles de empresas
+- Gestión de estados (activo, pendiente, inactivo)
+- Indicadores visuales según el estado de cada empresa
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## 🛠️ Estructura del proyecto
+
+📁 src/<br>
+├── common/ → Lógica compartida (hooks, helpers, etc.)<br>
+├── components/ → Componentes reutilizables (tablas, botones, etc.)<br>
+├── enums/ → Enumeraciones para estados y etiquetas<br>
+├── interfaces/ → Tipado TypeScript (empresas, usuarios, etc.)<br>
+├── layout/ → Estructura visual (navbars, wrappers, layout general)<br>
+├── pages/ → Páginas principales (login, dashboard, empresa, etc.)<br>
+├── store/ → Redux Toolkit (slices y configuración del store)<br>
+├── firebaseConfig.ts → Configuración de Firebase<br>
+├── App.tsx → Componente raíz con rutas<br>
+├── main.tsx → Entrada principal de la app<br>
+├── index.css → Estilos globales<br>
+└── vite-env.d.ts → Tipado de Vite<br>
+
+---
+
+## ✅ Requisitos
+
+- Node.js
+- Cuenta de Firebase configurada con:
+  - Firestore
+  - Firebase Authentication
+  - Firebase Hosting
+- Archivo `serviceAccountKey.json` válido (colocado en la raíz del uploader)
+
+---
+
+## 🔐 Seguridad
+
+El acceso a la aplicación está protegido mediante **Firebase Authentication**.  
+Solo los usuarios autenticados pueden acceder a las funcionalidades de la aplicación, incluyendo visualización y edición de datos.
+
+---
+
+✨ Estado actual
+ Carga de empresas desde Excel
+
+ Tablas con paginación y visualización por estado
+
+ Vista detallada por empresa
+
+ Conexión completa con Firebase
+
+ Edición de datos en frontend (en desarrollo)
+
+📄 Licencia
+Este proyecto es privado y desarrollado exclusivamente para Coworking Oxygen.
