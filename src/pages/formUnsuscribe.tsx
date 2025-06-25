@@ -17,6 +17,7 @@ import * as color from '../common/styles/colors'
 export const FormUnsuscribe = () => {
 
     const navigate = useNavigate()
+    const [isEditing, setIsEditing] = useState(false)
     const empresaSeleccionada = useSelector((state: RootState) => state.empresas.empresaSeleccionada)
     const [company, setCompany] = useState<Empresa>({
         id: '',
@@ -37,6 +38,11 @@ export const FormUnsuscribe = () => {
     })
     const [telefono, setTelefono] = useState('')
     const [email, setEmail] = useState('')
+    const nombresMeses = [
+        'enero', 'febrero', 'marzo', 'abril',
+        'mayo', 'junio', 'julio', 'agosto',
+        'septiembre', 'octubre', 'noviembre', 'diciembre',
+    ]
     const [showPopup, setShowPopup] = useState(false)
 
     useEffect(() => {
@@ -62,7 +68,29 @@ export const FormUnsuscribe = () => {
             logo: empresaSeleccionada?.logo || '',
         })
     }, [empresaSeleccionada])
+    useEffect(() => {
+        if (!company.fecha_inicio) return
 
+        // extraemos "YYYY-MM" de fecha_inicio "DD-MM-YYYY"
+        const [dd, mm, yyyy] = company.fecha_inicio.split('-')
+        const ym = `${yyyy}-${mm}`
+
+        const addedMonths =
+            company.modalidad === Modalidad.trimestral ? 2 :
+                company.modalidad === Modalidad.semestral ? 5 :
+                    11 // anual o myBusiness
+
+        // sumamos meses → "YYYY-MM"
+        const renewalYm = addMonthsToYYYYMM(ym, addedMonths)
+        // obtenemos último día → "DD-MM-YYYY"
+        const fechaRenovacionCompleta = getLastDayOfMonth(renewalYm)
+
+        setCompany(prev => ({
+            ...prev,
+            fecha_renovacion: fechaRenovacionCompleta
+        }))
+
+    }, [company.fecha_inicio, company.modalidad])
 
     const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTelefono(e.target.value)
@@ -125,30 +153,18 @@ export const FormUnsuscribe = () => {
         let month = Number(monthStr)
 
         month += monthsToAdd
-        // Ajusta overflow de meses
         year += Math.floor((month - 1) / 12)
         month = ((month - 1) % 12) + 1
 
-        // Formatea de nuevo a "YYYY-MM"
         const mm = String(month).padStart(2, '0')
         return `${year}-${mm}`
     }
     const handleFechaInicioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const start = e.target.value // "YYYY-MM"
-        const addedMonths =
-            company.modalidad === Modalidad.trimestral ? 2 :
-                company.modalidad === Modalidad.semestral ? 5 :
-                    11
-
-        const renewal = addMonthsToYYYYMM(start, addedMonths)
-
-        const fechaInicioCompleta = `01-${start.split('-')[1]}-${start.split('-')[0]}`
-        const fechaRenovacionCompleta = getLastDayOfMonth(renewal)
-
-        setCompany((prev) => ({
+        const ym = e.target.value            // "YYYY-MM"
+        const fechaInicioCompleta = `01-${ym.split('-')[1]}-${ym.split('-')[0]}`
+        setCompany(prev => ({
             ...prev,
-            fecha_inicio: fechaInicioCompleta,
-            fecha_renovacion: fechaRenovacionCompleta
+            fecha_inicio: fechaInicioCompleta
         }))
     }
     const getLastDayOfMonth = (yyyyMm: string): string => {
@@ -156,46 +172,33 @@ export const FormUnsuscribe = () => {
         const year = Number(yearStr)
         const month = Number(monthStr)
 
-        // Día 0 del mes siguiente → último día del mes actual
         const lastDayDate = new Date(year, month, 0)
         const dd = String(lastDayDate.getDate()).padStart(2, '0')
-        return `${dd}-${monthStr}-${yearStr}` // formato DD-MM-YYYY
+        return `${dd}-${monthStr}-${yearStr}` // "DD-MM-YYYY"
     }
 
     const handleModalidadChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const modalidad = e.target.value as Modalidad
-        const fechaInicio = company.fecha_inicio
-
-        // booleano que depende de la modalidad
         const isMyBusiness = modalidad === Modalidad.myBusiness
-
-        if (!fechaInicio) {
-            // si no hay fecha_inicio solo actualiza modalidad y myBusiness
-            setCompany(prev => ({
-                ...prev,
-                modalidad,
-                myBusiness: isMyBusiness
-            }))
-            return
-        }
-
-        const addedMonths =
-            modalidad === Modalidad.trimestral ? 3 :
-                modalidad === Modalidad.semestral ? 6 :
-                    12
-
-        const renewal = addMonthsToYYYYMM(fechaInicio, addedMonths)
-
         setCompany(prev => ({
             ...prev,
             modalidad,
-            myBusiness: isMyBusiness,
-            fecha_renovacion: renewal
+            myBusiness: isMyBusiness
         }))
+    }
+    const handleCheckboxChange = () => {
+        if (company.renovacion) {
+            setCompany((prev) => ({ ...prev, renovacion: false }))
+            setShowPopup(true)
+        } else {
+            setCompany((prev) => ({ ...prev, renovacion: true }))
+            setShowPopup(false)
+        }
     }
 
     const handlePopupCancel = () => {
         console.log('cancel')
+        setCompany((prev) => ({ ...prev, renovacion: true }))
         setShowPopup(false)
     }
     const handlePopupSave = (text: string) => {
@@ -234,6 +237,8 @@ export const FormUnsuscribe = () => {
                         value={company?.razon_social || ''}
                         type='text'
                         placeholder='Ejm: Farogems Jewls OU'
+                        disabled={!isEditing}
+                        editable={isEditing}
                         onChange={handleStringChange}>
                     </styles.InputText>
                 </styles.EntryVertical>
@@ -241,9 +246,11 @@ export const FormUnsuscribe = () => {
                     <styles.Title>Nombre de la persona de contacto*</styles.Title>
                     <styles.InputText
                         name='contacto'
-                        value={company?.titular || ''}
+                        value={company?.contacto || ''}
                         type='text'
                         placeholder='Ejm: Juan Pérez Solís'
+                        disabled={!isEditing}
+                        editable={isEditing}
                         onChange={handleStringChange}>
                     </styles.InputText>
                 </styles.EntryVertical>
@@ -255,16 +262,31 @@ export const FormUnsuscribe = () => {
                             placeholder='Ejm: correo@correo.com'
                             name='email'
                             value={email}
+                            disabled={!isEditing}
+                            editable={isEditing}
                             onChange={handleEmailChange}
                         ></styles.InputText>
-                        <styles.ButtonAddDelete margin="0 0 0 0.5rem" color={color.green} onClick={handleAddEmail}>+</styles.ButtonAddDelete>
+                        <styles.ButtonAddDelete
+                            margin="0 0 0 0.5rem"
+                            color={color.green}
+                            disabled={!isEditing}
+                            editable={isEditing}
+                            onClick={handleAddEmail}>
+                            +
+                        </styles.ButtonAddDelete>
                     </styles.EntryHorizontal>
                     {company.email.length > 0 && (
-                        <styles.ArrayBox>
+                        <styles.ArrayBox
+                            editable={isEditing}>
                             {company.email.map((email, index) => (
                                 <styles.ArrayItem key={index}>
                                     {email}
-                                    <styles.ButtonAddDelete margin="0 0 0 0.35rem" color={color.red} onClick={() => handleRemoveEmail(index)}>
+                                    <styles.ButtonAddDelete
+                                        margin="0 0 0 0.35rem"
+                                        color={color.red}
+                                        disabled={!isEditing}
+                                        editable={isEditing}
+                                        onClick={() => handleRemoveEmail(index)}>
                                         &times;
                                     </styles.ButtonAddDelete>
                                 </styles.ArrayItem>
@@ -281,16 +303,31 @@ export const FormUnsuscribe = () => {
                             width='13.5rem'
                             name='telefono_contacto'
                             value={telefono}
+                            disabled={!isEditing}
+                            editable={isEditing}
                             onChange={handleTelefonoChange}
                         ></styles.InputText>
-                        <styles.ButtonAddDelete margin="0 0 0 0.5rem" color={color.green} onClick={handleAddTelefono}>+</styles.ButtonAddDelete>
+                        <styles.ButtonAddDelete
+                            margin="0 0 0 0.5rem"
+                            color={color.green}
+                            disabled={!isEditing}
+                            editable={isEditing}
+                            onClick={handleAddTelefono}>
+                            +
+                        </styles.ButtonAddDelete>
                     </styles.EntryHorizontal>
                     {company.telefono_contacto.length > 0 && (
-                        <styles.ArrayBox>
+                        <styles.ArrayBox
+                            editable={isEditing}>
                             {company.telefono_contacto.map((telefono, index) => (
                                 <styles.ArrayItem key={index}>
                                     {telefono}
-                                    <styles.ButtonAddDelete margin="0 0 0 0.35rem" color={color.red} onClick={() => handleRemoveTelefono(index)}>
+                                    <styles.ButtonAddDelete
+                                        margin="0 0 0 0.35rem"
+                                        color={color.red}
+                                        disabled={!isEditing}
+                                        editable={isEditing}
+                                        onClick={() => handleRemoveTelefono(index)}>
                                         &times;
                                     </styles.ButtonAddDelete>
                                 </styles.ArrayItem>
@@ -304,7 +341,13 @@ export const FormUnsuscribe = () => {
                         name="fecha_inicio"
                         type="month"
                         width="13.5rem"
-                        value={company.fecha_inicio ? company.fecha_inicio.slice(6, 10) + '-' + company.fecha_inicio.slice(3, 5) : ''}
+                        value={
+                            company.fecha_inicio
+                                ? company.fecha_inicio.slice(6, 10) + '-' + company.fecha_inicio.slice(3, 5)
+                                : ''
+                        }
+                        disabled={!isEditing}
+                        editable={isEditing}
                         onChange={handleFechaInicioChange}
                     />
                 </styles.EntryVertical>
@@ -314,6 +357,8 @@ export const FormUnsuscribe = () => {
                         name="modalidad"
                         value={company?.modalidad || ''}
                         width='11.5rem'
+                        disabled={!isEditing}
+                        editable={isEditing}
                         onChange={handleModalidadChange}>
                         <option>{Modalidad.trimestral}</option>
                         <option>{Modalidad.semestral}</option>
@@ -331,6 +376,8 @@ export const FormUnsuscribe = () => {
                         value={company?.titular || ''}
                         type='text'
                         placeholder='Ejm: Juan Pérez Solís'
+                        disabled={!isEditing}
+                        editable={isEditing}
                         onChange={handleStringChange}>
                     </styles.InputText>
                 </styles.EntryVertical>
@@ -342,6 +389,8 @@ export const FormUnsuscribe = () => {
                         type='text'
                         placeholder='Ejm: 612345678'
                         width='13.5rem'
+                        disabled={!isEditing}
+                        editable={isEditing}
                         onChange={handleStringChange}></styles.InputText>
                 </styles.EntryVertical>
                 <styles.EntryVertical>
@@ -350,38 +399,73 @@ export const FormUnsuscribe = () => {
                         name="fecha_renovacion"
                         type="text"
                         width="13.5rem"
-                        value={company.fecha_renovacion
-                            ? company.fecha_renovacion.slice(6, 10) + '-' + company.fecha_renovacion.slice(3, 5)
-                            : ''}
+                        disabled={!isEditing}
+                        editable={isEditing}
                         readOnly
+                        value={
+                            company.fecha_renovacion &&
+                                company.fecha_renovacion.match(/^\d{2}-\d{2}-\d{4}$/) // Validar formato DD-MM-YYYY
+                                ? (() => {
+                                    const [dd, mm, yyyy] = company.fecha_renovacion.split('-')
+                                    const nombreMes = nombresMeses[Number(mm) - 1]
+                                    return `${nombreMes} de ${yyyy}`
+                                })()
+                                : 'Introducir fecha de inicio'
+                        }
                     />
                 </styles.EntryVertical>
                 <styles.EntryVertical>
                     <styles.Title>Comentarios</styles.Title>
-                    <styles.TextArea name="comentarios" width='20rem' onChange={handleTextAreaChange}></styles.TextArea>
+                    <styles.TextArea
+                        name="comentarios"
+                        width='20rem'
+                        disabled={!isEditing}
+                        editable={isEditing}
+                        onChange={handleTextAreaChange}>
+                    </styles.TextArea>
                 </styles.EntryVertical>
                 <styles.EntryHorizontal>
-                    <Button color={color.blue}>
+                    <Button
+                        color={color.blue}
+                        width="11rem"
+                        padding="0.5em 0"
+                        onClick={() => setIsEditing(!isEditing)}>
                         <styles.IconModifyUser />
                         Modificar
                     </Button>
-                    <Button color={color.red} margin='0 0 0 1.5rem'>
+                    <Button
+                        color={color.red}
+                        margin='0 0 0 1.5rem'
+                        width="11rem"
+                        padding="0.5em 0">
                         <styles.IconRemoveuser />
                         Dar de baja
                     </Button>
                 </styles.EntryHorizontal>
                 <styles.EntryHorizontal>
-                    <Button color={color.blue}>
+                    <Button
+                        color={color.blue}
+                        width="11rem"
+                        padding="0.5em 0">
                         <styles.IconProcessPay />
                         Procesar pago
                     </Button>
-                    <Button color={color.green} margin='0 0 0 1.5rem'>
+                    <Button
+                        color={color.green}
+                        margin='0 0 0 1.5rem'
+                        width="11rem"
+                        padding="0.5em 0">
                         <styles.IconHistorical />
                         Historial
                     </Button>
                 </styles.EntryHorizontal>
                 <styles.EntryHorizontal>
-                    <styles.CheckBox name="renovacion" type='checkbox' checked={showPopup} onChange={() => setShowPopup(!showPopup)}></styles.CheckBox>
+                    <styles.CheckBox
+                        type="checkbox"
+                        checked={!company.renovacion}
+                        disabled={!isEditing}
+                        onChange={handleCheckboxChange}
+                    />
                     <styles.Title>No renovar al finalizar el contrato</styles.Title>
                 </styles.EntryHorizontal>
             </styles.Column>

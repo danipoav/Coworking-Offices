@@ -91,29 +91,35 @@ export const Title = styled.h4`
     font-weight: 600;
 `
 
-export const InputText = styled.input<{ width?: string }>`
-    padding: 0.75em;
-    text-align: left;
-    height: 2.75rem;
-    width: ${props => props.width || '25rem'};
-    font-weight: 600;
-    border: 2px solid ${color.grayBorderText};
-    border-radius: 0.4rem;
-    color: ${color.grayBorderText};
-    outline: none;
-    background-color: ${color.grayBackgroundInput};
+export const InputText = styled.input<{ width?: string; editable?: boolean }>`
+  padding: 0.75em;
+  text-align: left;
+  height: 2.75rem;
+  width: ${props => props.width || '25rem'};
+  font-weight: 600;
+  border: 2px solid ${props => (props.editable ? color.black : color.grayBorderText)};
+  border-radius: 0.4rem;
+  color: ${props => (props.editable ? color.black : color.grayBorderText)};
+  background-color: ${color.grayBackgroundInput};
+  cursor: pointer;
+
+  &:disabled {
+    color: ${color.grayBorderText};      /* Color cuando está disabled */
+    border-color: ${color.grayBorderText};
+    opacity: 1; /* Evita que el browser le baje opacidad automáticamente */
+  }
 `
 
-export const Select = styled.select<{ width?: string }>`
+export const Select = styled.select<{ width?: string; editable?: boolean }>`
     position: relative;
     padding: 0.5em 2.5rem 0.5em 0.5em;
     text-align: left;
     height: 2.75rem;
     width: ${props => props.width || '25rem'};
     font-weight: 600;
-    border: 2px solid ${color.grayBorderText};
+    border: 2px solid ${props => (props.editable ? color.black : color.grayBorderText)};
     border-radius: 0.4rem;
-    color: ${color.grayBorderText};
+    color: ${props => (props.editable ? color.black : color.grayBorderText)};
     outline: none;
     cursor: pointer;
     background-color: ${color.grayBackgroundInput};
@@ -135,21 +141,21 @@ export const Select = styled.select<{ width?: string }>`
     background-size: 1rem, 1rem;
 `
 
-export const TextArea = styled.textarea<{ width?: string }>`
+export const TextArea = styled.textarea<{ width?: string; editable?: boolean }>`
     padding: 0.5em;
     text-align: left;
     width: ${props => props.width || '25rem'};
     height: 7.5rem;
-    font-weight: 400;
+    font-weight: 600;
     border: none;
-    border: 2px solid ${color.grayBorderText};
+    border: 2px solid ${props => (props.editable ? color.black : color.grayBorderText)};
     border-radius: 0.4rem;
-    color: ${color.grayBorderText};
+    color: ${props => (props.editable ? color.black : color.grayBorderText)};
     outline: none;
     background-color: ${color.grayBackgroundInput};
 `
 
-export const ButtonAddDelete = styled.button<{ margin?: string; color?: string }>`
+export const ButtonAddDelete = styled.button<{ margin?: string; color?: string; editable?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
@@ -161,7 +167,7 @@ export const ButtonAddDelete = styled.button<{ margin?: string; color?: string }
     font-weight: 700;
     cursor: pointer;
     color: ${color.white};
-    background-color: ${props => props.color || 'blue'};
+    background-color: ${props => props.editable ? (props.color || color.black) : color.grayBorderText};
 `
 
 export const IconModifyUser = styled(LuUserRoundPen)`
@@ -215,17 +221,18 @@ export const CheckBox = styled.input`
     cursor: pointer;
 `
 
-export const ArrayBox = styled.div`
+export const ArrayBox = styled.div<{ editable?: boolean }>`
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
     padding: 0.5rem;
     gap: 0.5rem;
     width: fit-content;
+    font-weight: 600;
     max-width: 35rem;
-    border: 2px solid ${color.grayBorderText};
+    border: 2px solid ${props => (props.editable ? color.black : color.grayBorderText)};
     border-radius: 0.4rem;
-    color: ${color.grayBorderText};
+    color: ${props => (props.editable ? color.black : color.grayBorderText)};
     background-color: ${color.grayBackgroundInput};
 `
 

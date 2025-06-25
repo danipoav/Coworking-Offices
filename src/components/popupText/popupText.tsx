@@ -1,10 +1,10 @@
 
 import { useState } from 'react'
 
-import * as styles from './popupTextStyles.ts'
-import * as color from '../../common/styles/colors.ts'
-import { EntryHorizontal } from '../../common/styles/formStyles.ts'
-import { Button } from '../button/button.tsx'
+import * as styles from './popupTextStyles'
+import * as color from '../../common/styles/colors'
+import { EntryHorizontal } from '../../common/styles/formStyles'
+import { Button } from '../button/button'
 
 
 type PopupTextProps = {
