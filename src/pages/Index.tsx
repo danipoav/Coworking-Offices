@@ -31,8 +31,17 @@ export default function Index() {
     );
   }
 
-  if (error) return <div>{error}</div>;
-  if (empresas.length === 0) return <div>No se encontraron empresas</div>;
+  if (error) return <div className="flex items-center justify-center h-[750px]">
+    <div className="text-center">
+      <p className="text-red-600 text-lg font-medium">{error}</p>
+    </div>
+  </div>;
+
+  if (empresas.length === 0) return <div className="flex items-center justify-center h-[750px]">
+    <div className="text-center">
+      <p className="text-gray-600 text-lg font-medium">No se encontraron empresas</p>
+    </div>
+  </div>;
 
   // Función para parsear fechas en formato europeo (dd-mm-yyyy)
   const parseFechaEuropea = (fechaStr: string): Date => {
