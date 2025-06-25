@@ -65,16 +65,18 @@ Solo los usuarios autenticados pueden acceder a las funcionalidades de la aplica
 
 ---
 
-✨ Estado actual
- Carga de empresas desde Excel
+✨ Estado actual<br>
 
- Tablas con paginación y visualización por estado
+✅ Carga de empresas desde Excel
 
- Vista detallada por empresa
+✅ Tablas con paginación y visualización por estado
 
- Conexión completa con Firebase
+✅ Vista detallada por empresa
 
- Edición de datos en frontend (en desarrollo)
+✅ Conexión completa con Firebase
 
-📄 Licencia
+⚙️ Edición de datos en frontend (en desarrollo)
+---
+
+📄 Licencia<br>
 Este proyecto es privado y desarrollado exclusivamente para Coworking Oxygen.
