@@ -83,10 +83,13 @@ export default function Index() {
     return fechaA - fechaB;
   });
 
-  const datosFinales = datosFiltradosOrdenados.filter((empresa) => {
-    const texto = busqueda.toLowerCase();
-    return empresa.razon_social.toLowerCase().includes(texto);
-  });
+  const datosFinales = busqueda.trim()
+    ? noPendingCompanies.filter((empresa) => empresa.razon_social.toLowerCase().includes(busqueda.toLowerCase())
+    ).sort((a, b) => {
+      const fechaA = parseFechaEuropea(a.fecha_inicio).getTime();
+      const fechaB = parseFechaEuropea(b.fecha_inicio).getTime();
+      return fechaA - fechaB;
+    }) : datosFiltradosOrdenados
 
   const handlePreviousMonth = () => {
     setIndiceMes((prev) => Math.min(prev + 1, availableMonths.length - 1));
