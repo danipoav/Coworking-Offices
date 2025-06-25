@@ -5,6 +5,8 @@ import { createGlobalStyle } from 'styled-components'
 import { LuUserRoundPen } from "react-icons/lu"
 import { LuUserRoundPlus } from "react-icons/lu"
 import { LuUserRoundX } from "react-icons/lu"
+import { AiOutlineEuro } from "react-icons/ai"
+import { FiDownload } from "react-icons/fi"
 
 import * as color from '../../common/styles/colors'
 
@@ -56,6 +58,7 @@ export const GlobalDateTimeStyles = createGlobalStyle`
 export const Container = styled.div<{ justifycontent?: string }>`
     display: flex;
     justify-content: ${props => props.justifycontent || 'left'};
+    gap: 7.5rem;
 `
 
 export const Column = styled.div<{ padding?: string }>`
@@ -180,6 +183,24 @@ export const IconAdduser = styled(LuUserRoundPlus)`
 `
 
 export const IconRemoveuser = styled(LuUserRoundX)`
+    vertical-align: middle;
+    padding: 0.2em;
+    width: 2.25rem;
+    height: auto;
+    border-radius: 0.5rem;
+    color: ${color.white};
+`
+
+export const IconProcessPay = styled(AiOutlineEuro)`
+    vertical-align: middle;
+    padding: 0.2em;
+    width: 2.25rem;
+    height: auto;
+    border-radius: 0.5rem;
+    color: ${color.white};
+`
+
+export const IconHistorical = styled(FiDownload)`
     vertical-align: middle;
     padding: 0.2em;
     width: 2.25rem;
