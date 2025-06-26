@@ -10,7 +10,7 @@ import { PopupText } from "../components/popupText/popupText"
 import * as styles from '../common/styles/formStyles'
 import * as color from '../common/styles/colors'
 import { db } from "../firebaseConfig"
-import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore";
 import { useAuth } from "../common/AuthContext";
 import { toast } from 'react-toastify'
 
@@ -152,8 +152,23 @@ export const FormUnsuscribe = () => {
         setShowPopup(false)
     }
 
-    const handlePopupSave = (text: string) => {
-        console.log('guardar texto: ', text)
+    const handlePopupSave = async (text: string) => {
+        if (!originalCompany) return;
+
+        const cambios = {
+            "Motivo Baja": {
+                antes: "",
+                despues: text
+            }
+        };
+
+        try {
+            await saveHistoricalChanges(originalCompany.id, cambios);
+            toast.success("Motivo de baja guardado en el historial.");
+        } catch (error) {
+            toast.error("Error guardando motivo de baja.");
+            console.error(error);
+        }
         setShowPopup(false)
     }
 
@@ -293,8 +308,113 @@ export const FormUnsuscribe = () => {
 
         toast.success('Historial descargado correctamente.')
     }
+    const handleProcesarPago = () => {
+        const confirmado = window.confirm("¿Estás seguro de que quieres procesar el pago?");
+        if (confirmado) {
+            procesarPago();
+        }
+    };
+    const procesarPago = async () => {
+        if (!originalCompany) return;
 
+        // Paso 1: calcular nueva fecha de inicio = día siguiente a la fecha_renovacion actual
+        const [dia, mes, anio] = company.fecha_renovacion.split('-').map(Number);
+        const fechaRenovacionActual = new Date(anio, mes - 1, dia);
+        const nuevaFechaInicioDate = new Date(fechaRenovacionActual);
+        nuevaFechaInicioDate.setDate(nuevaFechaInicioDate.getDate() + 1);
 
+        const nuevaFechaInicio = `${String(nuevaFechaInicioDate.getDate()).padStart(2, '0')}-${String(nuevaFechaInicioDate.getMonth() + 1).padStart(2, '0')}-${nuevaFechaInicioDate.getFullYear()}`;
+
+        // Paso 2: determinar meses a sumar según modalidad
+        let mesesASumar: number;
+
+        switch (company.modalidad) {
+            case Modalidad.trimestral:
+                mesesASumar = 2;
+                break;
+            case Modalidad.semestral:
+                mesesASumar = 5;
+                break;
+            case Modalidad.anual:
+            case Modalidad.myBusiness:
+                mesesASumar = 11;
+                break;
+            default:
+                throw new Error(`Modalidad no reconocida: ${company.modalidad}`);
+        }
+
+        const fechaRenovacionFinalDate = new Date(nuevaFechaInicioDate.getFullYear(), nuevaFechaInicioDate.getMonth() + mesesASumar + 1, 0); // último día del mes resultante
+        const nuevaFechaRenovacion = `${String(fechaRenovacionFinalDate.getDate()).padStart(2, '0')}-${String(fechaRenovacionFinalDate.getMonth() + 1).padStart(2, '0')}-${fechaRenovacionFinalDate.getFullYear()}`;
+
+        // Paso 3: actualizar campos en el estado local
+        const empresaActualizada: Empresa = {
+            ...company,
+            fecha_inicio: nuevaFechaInicio,
+            fecha_renovacion: nuevaFechaRenovacion
+        };
+
+        // Paso 4: detectar cambios con respecto al original
+        const cambios = Object.entries(empresaActualizada).reduce((acc, [key, value]) => {
+            if (JSON.stringify(value) !== JSON.stringify((originalCompany as any)[key])) {
+                acc[key] = {
+                    antes: (originalCompany as any)[key],
+                    despues: value
+                };
+            }
+            return acc;
+        }, {} as Record<string, { antes: any; despues: any }>);
+
+        if (Object.keys(cambios).length > 0) {
+            console.log("Cambios procesados por pago:", cambios);
+            await saveHistoricalChanges(originalCompany.id, cambios);
+            await updateCompany(originalCompany.id, cambios);
+            setCompany(empresaActualizada);
+            setOriginalCompany(empresaActualizada);
+            toast.success("Pago procesado y fechas actualizadas con éxito.");
+        } else {
+            console.log("No se detectaron cambios al procesar pago.");
+            toast.info("No se detectaron cambios al procesar el pago.");
+        }
+    };
+
+    const handleDarDeBajaEmpresa = () => {
+        const confirmado = window.confirm("¿Estás seguro de que quieres dar de baja la empresa?");
+        if (confirmado) {
+            darDeBajaEmpresa();
+        }
+    };
+
+    const darDeBajaEmpresa = async () => {
+        if (!company.id) {
+            toast.error("Empresa no válida o sin ID.");
+            return;
+        }
+
+        try {
+            const empresaRef = doc(db, "EmpresaList", company.id);
+            const empresaSnap = await getDoc(empresaRef);
+
+            if (!empresaSnap.exists()) {
+                toast.error("No se encontró la empresa en la base de datos.");
+                return;
+            }
+
+            const datosEmpresa = empresaSnap.data();
+
+            const bajaRef = doc(db, "BajasList", company.id);
+            await setDoc(bajaRef, {
+                ...datosEmpresa,
+                fecha_baja: new Date().toISOString()
+            });
+
+            await deleteDoc(empresaRef);
+
+            toast.success("Empresa dada de baja correctamente.");
+        } catch (error) {
+            console.error("Error al dar de baja la empresa:", error);
+            toast.error("Error al dar de baja la empresa.");
+        }
+    };
 
     return (<>
 
@@ -537,7 +657,8 @@ export const FormUnsuscribe = () => {
                         color={color.red}
                         margin='0 0 0 1.5rem'
                         width="11rem"
-                        padding="0.5em 0">
+                        padding="0.5em 0"
+                        onClick={handleDarDeBajaEmpresa}>
                         <styles.IconRemoveuser />
                         Dar de baja
                     </Button>
@@ -546,7 +667,8 @@ export const FormUnsuscribe = () => {
                     <Button
                         color={color.blue}
                         width="11rem"
-                        padding="0.5em 0">
+                        padding="0.5em 0"
+                        onClick={handleProcesarPago}>
                         <styles.IconProcessPay />
                         Procesar pago
                     </Button>
