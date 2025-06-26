@@ -5,6 +5,8 @@ import { createGlobalStyle } from 'styled-components'
 import { LuUserRoundPen } from "react-icons/lu"
 import { LuUserRoundPlus } from "react-icons/lu"
 import { LuUserRoundX } from "react-icons/lu"
+import { AiOutlineEuro } from "react-icons/ai"
+import { FiDownload } from "react-icons/fi"
 
 import * as color from '../../common/styles/colors'
 
@@ -56,6 +58,7 @@ export const GlobalDateTimeStyles = createGlobalStyle`
 export const Container = styled.div<{ justifycontent?: string }>`
     display: flex;
     justify-content: ${props => props.justifycontent || 'left'};
+    gap: 7.5rem;
 `
 
 export const Column = styled.div<{ padding?: string }>`
@@ -88,29 +91,35 @@ export const Title = styled.h4`
     font-weight: 600;
 `
 
-export const InputText = styled.input<{ width?: string }>`
-    padding: 0.75em;
-    text-align: left;
-    height: 2.75rem;
-    width: ${props => props.width || '25rem'};
-    font-weight: 600;
-    border: 2px solid ${color.grayBorderText};
-    border-radius: 0.4rem;
-    color: ${color.grayBorderText};
-    outline: none;
-    background-color: ${color.grayBackgroundInput};
+export const InputText = styled.input<{ width?: string; editable?: boolean }>`
+  padding: 0.75em;
+  text-align: left;
+  height: 2.75rem;
+  width: ${props => props.width || '25rem'};
+  font-weight: 600;
+  border: 2px solid ${props => (props.editable ? color.black : color.grayBorderText)};
+  border-radius: 0.4rem;
+  color: ${props => (props.editable ? color.black : color.grayBorderText)};
+  background-color: ${color.grayBackgroundInput};
+  cursor: pointer;
+
+  &:disabled {
+    color: ${color.grayBorderText};      /* Color cuando está disabled */
+    border-color: ${color.grayBorderText};
+    opacity: 1; /* Evita que el browser le baje opacidad automáticamente */
+  }
 `
 
-export const Select = styled.select<{ width?: string }>`
+export const Select = styled.select<{ width?: string; editable?: boolean }>`
     position: relative;
     padding: 0.5em 2.5rem 0.5em 0.5em;
     text-align: left;
     height: 2.75rem;
     width: ${props => props.width || '25rem'};
     font-weight: 600;
-    border: 2px solid ${color.grayBorderText};
+    border: 2px solid ${props => (props.editable ? color.black : color.grayBorderText)};
     border-radius: 0.4rem;
-    color: ${color.grayBorderText};
+    color: ${props => (props.editable ? color.black : color.grayBorderText)};
     outline: none;
     cursor: pointer;
     background-color: ${color.grayBackgroundInput};
@@ -132,21 +141,21 @@ export const Select = styled.select<{ width?: string }>`
     background-size: 1rem, 1rem;
 `
 
-export const TextArea = styled.textarea<{ width?: string }>`
+export const TextArea = styled.textarea<{ width?: string; editable?: boolean }>`
     padding: 0.5em;
     text-align: left;
     width: ${props => props.width || '25rem'};
     height: 7.5rem;
-    font-weight: 400;
+    font-weight: 600;
     border: none;
-    border: 2px solid ${color.grayBorderText};
+    border: 2px solid ${props => (props.editable ? color.black : color.grayBorderText)};
     border-radius: 0.4rem;
-    color: ${color.grayBorderText};
+    color: ${props => (props.editable ? color.black : color.grayBorderText)};
     outline: none;
     background-color: ${color.grayBackgroundInput};
 `
 
-export const ButtonAddDelete = styled.button<{ margin?: string; color?: string }>`
+export const ButtonAddDelete = styled.button<{ margin?: string; color?: string; editable?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
@@ -158,7 +167,7 @@ export const ButtonAddDelete = styled.button<{ margin?: string; color?: string }
     font-weight: 700;
     cursor: pointer;
     color: ${color.white};
-    background-color: ${props => props.color || 'blue'};
+    background-color: ${props => props.editable ? (props.color || color.black) : color.grayBorderText};
 `
 
 export const IconModifyUser = styled(LuUserRoundPen)`
@@ -188,23 +197,42 @@ export const IconRemoveuser = styled(LuUserRoundX)`
     color: ${color.white};
 `
 
+export const IconProcessPay = styled(AiOutlineEuro)`
+    vertical-align: middle;
+    padding: 0.2em;
+    width: 2.25rem;
+    height: auto;
+    border-radius: 0.5rem;
+    color: ${color.white};
+`
+
+export const IconHistorical = styled(FiDownload)`
+    vertical-align: middle;
+    padding: 0.2em;
+    width: 2.25rem;
+    height: auto;
+    border-radius: 0.5rem;
+    color: ${color.white};
+`
+
 export const CheckBox = styled.input`
     transform: scale(1.5);
     accent-color: ${color.blue};
     cursor: pointer;
 `
 
-export const ArrayBox = styled.div`
+export const ArrayBox = styled.div<{ editable?: boolean }>`
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
     padding: 0.5rem;
     gap: 0.5rem;
     width: fit-content;
+    font-weight: 600;
     max-width: 35rem;
-    border: 2px solid ${color.grayBorderText};
+    border: 2px solid ${props => (props.editable ? color.black : color.grayBorderText)};
     border-radius: 0.4rem;
-    color: ${color.grayBorderText};
+    color: ${props => (props.editable ? color.black : color.grayBorderText)};
     background-color: ${color.grayBackgroundInput};
 `
 
