@@ -1,24 +1,27 @@
-
 import { useState, useEffect } from "react"
 import { useSelector } from 'react-redux'
 import type { RootState } from '../store'
-
 import type { Empresa } from '../interfaces/Empresa'
 import { Modalidad } from "../enums/Modalidad"
 import { FaArrowLeft } from "react-icons/fa"
 import { useNavigate } from "react-router-dom"
 import { Button } from "../components/button/button"
 import { PopupText } from "../components/popupText/popupText"
-
 import * as styles from '../common/styles/formStyles'
 import * as color from '../common/styles/colors'
-
+import { db } from "../firebaseConfig"
+import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { useAuth } from "../common/AuthContext";
+import { toast } from 'react-toastify'
 
 export const FormUnsuscribe = () => {
 
     const navigate = useNavigate()
-    const [isEditing, setIsEditing] = useState(false)
     const empresaSeleccionada = useSelector((state: RootState) => state.empresas.empresaSeleccionada)
+    const { user } = useAuth();
+    const [isEditing, setIsEditing] = useState(false)
+    const [showPopup, setShowPopup] = useState(false)
+
     const [company, setCompany] = useState<Empresa>({
         id: '',
         razon_social: '',
@@ -36,68 +39,48 @@ export const FormUnsuscribe = () => {
         comentarios: '',
         logo: ''
     })
+
+    const [originalCompany, setOriginalCompany] = useState<Empresa | null>(null)
+
     const [telefono, setTelefono] = useState('')
     const [email, setEmail] = useState('')
+
     const nombresMeses = [
         'enero', 'febrero', 'marzo', 'abril',
         'mayo', 'junio', 'julio', 'agosto',
         'septiembre', 'octubre', 'noviembre', 'diciembre',
     ]
-    const [showPopup, setShowPopup] = useState(false)
 
     useEffect(() => {
-        setCompany({
-            id: empresaSeleccionada?.id || '',
-            razon_social: empresaSeleccionada?.razon_social || '',
-            email: Array.isArray(empresaSeleccionada?.email)
-                ? empresaSeleccionada.email
-                : [],
-            fecha_inicio: empresaSeleccionada?.fecha_inicio || '',
-            fecha_renovacion: empresaSeleccionada?.fecha_renovacion || '',
-            modalidad: empresaSeleccionada?.modalidad || Modalidad.trimestral,
-            myBusiness: empresaSeleccionada?.myBusiness || false,
-            pendiente_pago: empresaSeleccionada?.pendiente_pago || false,
-            renovacion: empresaSeleccionada?.renovacion || false,
-            contacto: empresaSeleccionada?.contacto || '',
-            telefono_contacto: Array.isArray(empresaSeleccionada?.telefono_contacto)
-                ? empresaSeleccionada.telefono_contacto
-                : [],
-            titular: empresaSeleccionada?.titular || '',
-            telefono_titular: empresaSeleccionada?.telefono_titular || '',
-            comentarios: empresaSeleccionada?.comentarios || '',
-            logo: empresaSeleccionada?.logo || '',
-        })
+        if (empresaSeleccionada) {
+            setCompany(empresaSeleccionada)
+            setOriginalCompany(empresaSeleccionada)
+        }
     }, [empresaSeleccionada])
+
     useEffect(() => {
         if (!company.fecha_inicio) return
 
-        // extraemos "YYYY-MM" de fecha_inicio "DD-MM-YYYY"
         const [dd, mm, yyyy] = company.fecha_inicio.split('-')
         const ym = `${yyyy}-${mm}`
 
         const addedMonths =
             company.modalidad === Modalidad.trimestral ? 2 :
                 company.modalidad === Modalidad.semestral ? 5 :
-                    11 // anual o myBusiness
+                    11
 
-        // sumamos meses → "YYYY-MM"
         const renewalYm = addMonthsToYYYYMM(ym, addedMonths)
-        // obtenemos último día → "DD-MM-YYYY"
         const fechaRenovacionCompleta = getLastDayOfMonth(renewalYm)
 
         setCompany(prev => ({
             ...prev,
             fecha_renovacion: fechaRenovacionCompleta
         }))
-
     }, [company.fecha_inicio, company.modalidad])
 
-    const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTelefono(e.target.value)
-    }
-    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEmail(e.target.value)
-    }
+    const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => setTelefono(e.target.value)
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)
+
     const handleAddTelefono = () => {
         if (telefono.trim()) {
             setCompany(prev => ({
@@ -107,6 +90,7 @@ export const FormUnsuscribe = () => {
             setTelefono('')
         }
     }
+
     const handleAddEmail = () => {
         if (email.trim()) {
             setCompany(prev => ({
@@ -116,37 +100,63 @@ export const FormUnsuscribe = () => {
             setEmail('')
         }
     }
+
     const handleRemoveTelefono = (index: number) => {
-        setCompany((prev) => ({
+        setCompany(prev => ({
             ...prev,
-            telefono_contacto: prev.telefono_contacto.filter(
-                (_, i) => i !== index
-            ),
+            telefono_contacto: prev.telefono_contacto.filter((_, i) => i !== index)
         }))
     }
+
     const handleRemoveEmail = (index: number) => {
-        setCompany((prev) => ({
+        setCompany(prev => ({
             ...prev,
-            email: prev.email.filter(
-                (_, i) => i !== index
-            ),
+            email: prev.email.filter((_, i) => i !== index)
         }))
     }
 
     const handleStringChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
-        setCompany({
-            ...company,
-            [name]: value
-        })
+        setCompany(prev => ({ ...prev, [name]: value }))
     }
+
     const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const { name, value } = e.target
-        setCompany({
-            ...company,
-            [name]: value
-        })
+        setCompany(prev => ({ ...prev, [name]: value }))
     }
+
+    const handleFechaInicioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const ym = e.target.value
+        const fechaInicioCompleta = `01-${ym.split('-')[1]}-${ym.split('-')[0]}`
+        setCompany(prev => ({ ...prev, fecha_inicio: fechaInicioCompleta }))
+    }
+
+    const handleModalidadChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const modalidad = e.target.value as Modalidad
+        const isMyBusiness = modalidad === Modalidad.myBusiness
+        setCompany(prev => ({ ...prev, modalidad, myBusiness: isMyBusiness }))
+    }
+
+    const handleCheckboxChange = () => {
+        if (company.renovacion) {
+            setCompany(prev => ({ ...prev, renovacion: false }))
+            setShowPopup(true)
+        } else {
+            setCompany(prev => ({ ...prev, renovacion: true }))
+            setShowPopup(false)
+        }
+    }
+
+    const handlePopupCancel = () => {
+        setCompany(prev => ({ ...prev, renovacion: true }))
+        setShowPopup(false)
+    }
+
+    const handlePopupSave = (text: string) => {
+        console.log('guardar texto: ', text)
+        setShowPopup(false)
+    }
+
     const addMonthsToYYYYMM = (yyyymm: string, monthsToAdd: number): string => {
         const [yearStr, monthStr] = yyyymm.split('-')
         let year = Number(yearStr)
@@ -156,61 +166,139 @@ export const FormUnsuscribe = () => {
         year += Math.floor((month - 1) / 12)
         month = ((month - 1) % 12) + 1
 
-        const mm = String(month).padStart(2, '0')
-        return `${year}-${mm}`
+        return `${year}-${String(month).padStart(2, '0')}`
     }
-    const handleFechaInicioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const ym = e.target.value            // "YYYY-MM"
-        const fechaInicioCompleta = `01-${ym.split('-')[1]}-${ym.split('-')[0]}`
-        setCompany(prev => ({
-            ...prev,
-            fecha_inicio: fechaInicioCompleta
-        }))
-    }
+
     const getLastDayOfMonth = (yyyyMm: string): string => {
         const [yearStr, monthStr] = yyyyMm.split('-')
-        const year = Number(yearStr)
-        const month = Number(monthStr)
-
-        const lastDayDate = new Date(year, month, 0)
+        const lastDayDate = new Date(Number(yearStr), Number(monthStr), 0)
         const dd = String(lastDayDate.getDate()).padStart(2, '0')
-        return `${dd}-${monthStr}-${yearStr}` // "DD-MM-YYYY"
+        return `${dd}-${monthStr}-${yearStr}`
     }
 
-    const handleModalidadChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const modalidad = e.target.value as Modalidad
-        const isMyBusiness = modalidad === Modalidad.myBusiness
-        setCompany(prev => ({
-            ...prev,
-            modalidad,
-            myBusiness: isMyBusiness
-        }))
+    const handleEditToggle = () => {
+        setOriginalCompany(company)
+        setIsEditing(true)
     }
-    const handleCheckboxChange = () => {
-        if (company.renovacion) {
-            setCompany((prev) => ({ ...prev, renovacion: false }))
-            setShowPopup(true)
+
+    const handleSave = async () => {
+        if (!originalCompany) return;
+
+        const cambios = Object.entries(company).reduce((acc, [key, value]) => {
+            if (JSON.stringify(value) !== JSON.stringify((originalCompany as any)[key])) {
+                acc[key] = {
+                    antes: (originalCompany as any)[key],
+                    despues: value
+                };
+            }
+            return acc;
+        }, {} as Record<string, any>);
+
+        if (Object.keys(cambios).length > 0) {
+            console.log("Cambios detectados:", cambios);
+            saveHistoricalChanges(originalCompany.id, cambios);
+            await updateCompany(originalCompany.id, cambios);
         } else {
-            setCompany((prev) => ({ ...prev, renovacion: true }))
-            setShowPopup(false)
+            console.log("No se detectaron cambios.");
         }
+
+        setIsEditing(false);
+    };
+
+    const saveHistoricalChanges = async (companyId: string, cambios: Record<string, any>) => {
+        try {
+            const historicoRef = doc(db, "HistoricoList", companyId);
+            const historicoSnap = await getDoc(historicoRef);
+
+            const fecha = new Date();
+            const entradaHistorial = {
+                fecha: fecha.toISOString(),
+                usuario: user?.email || "desconocido",
+                cambios: cambios,
+            };
+
+            if (historicoSnap.exists()) {
+                // Ya existe, actualizamos agregando al historial
+                await updateDoc(historicoRef, {
+                    historial: arrayUnion(entradaHistorial)
+                });
+            } else {
+                // No existe, lo creamos
+                await setDoc(historicoRef, {
+                    empresaId: companyId,
+                    historial: [entradaHistorial]
+                });
+            }
+
+            console.log("Historial actualizado correctamente.");
+        } catch (error) {
+            console.error("Error guardando en historial:", error);
+        }
+
+
+    };
+
+    const updateCompany = async (companyId: string, cambios: Record<string, any>) => {
+        try {
+            const companyRef = doc(db, "EmpresaList", companyId);
+            const updatedFields = Object.fromEntries(
+                Object.entries(cambios).map(([key, change]) => [key, change.despues])
+            );
+
+            await updateDoc(companyRef, updatedFields);
+            console.log("Empresa actualizada con éxito");
+        } catch (error) {
+            console.error("Error actualizando empresa:", error);
+        }
+    };
+
+    const downloadHistoric = async (companyId: string) => {
+        const historicoRef = doc(db, 'HistoricoList', companyId)
+        const snapshot = await getDoc(historicoRef)
+
+        if (!snapshot.exists()) {
+            toast.error('No se encontraron cambios históricos para esta empresa.')
+            return
+        }
+
+        const data = snapshot.data()
+        const eventos = data.historial || []
+
+        if (eventos.length === 0) {
+            toast.info('El historial está vacío.')
+            return
+        }
+
+        // Construir el contenido del archivo
+        let content = 'Fecha y hora\tUsuario\tCampo\tAntes\tDespués\n'
+
+        eventos.forEach((evento: any) => {
+            const date = new Date(evento.fecha).toLocaleString()
+            const user = evento.usuario
+
+            const cambios = evento.cambios as Record<string, { antes: any, despues: any }>
+            Object.entries(cambios).forEach(([campo, { antes, despues }]) => {
+                content += `${date}\t${user}\t${campo}\t${JSON.stringify(antes)}\t${JSON.stringify(despues)}\n`
+            })
+        })
+
+        // Crear y descargar archivo .txt
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `historial_${companyId}.txt`
+        a.click()
+        URL.revokeObjectURL(url)
+
+        toast.success('Historial descargado correctamente.')
     }
 
-    const handlePopupCancel = () => {
-        console.log('cancel')
-        setCompany((prev) => ({ ...prev, renovacion: true }))
-        setShowPopup(false)
-    }
-    const handlePopupSave = (text: string) => {
-        console.log('guardar texto: ', text)
-        setShowPopup(false)
-    }
 
 
     return (<>
 
-        {console.log('-->', company)}
-        {console.log('==> ', empresaSeleccionada)}
+
 
         <styles.GlobalDateTimeStyles />
         {showPopup && (
@@ -425,14 +513,26 @@ export const FormUnsuscribe = () => {
                     </styles.TextArea>
                 </styles.EntryVertical>
                 <styles.EntryHorizontal>
-                    <Button
-                        color={color.blue}
-                        width="11rem"
-                        padding="0.5em 0"
-                        onClick={() => setIsEditing(!isEditing)}>
-                        <styles.IconModifyUser />
-                        Modificar
-                    </Button>
+                    {!isEditing ? (
+                        <Button
+                            color={color.blue}
+                            width="11rem"
+                            padding="0.5em 0"
+                            onClick={handleEditToggle}
+                        >
+                            <styles.IconModifyUser />
+                            Modificar
+                        </Button>
+                    ) : (
+                        <Button
+                            color={color.green}
+                            width="11rem"
+                            padding="0.5em 0"
+                            onClick={handleSave}
+                        >
+                            Guardar
+                        </Button>
+                    )}
                     <Button
                         color={color.red}
                         margin='0 0 0 1.5rem'
@@ -454,7 +554,8 @@ export const FormUnsuscribe = () => {
                         color={color.green}
                         margin='0 0 0 1.5rem'
                         width="11rem"
-                        padding="0.5em 0">
+                        padding="0.5em 0"
+                        onClick={() => downloadHistoric(company.id)} >
                         <styles.IconHistorical />
                         Historial
                     </Button>
