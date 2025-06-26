@@ -7,6 +7,7 @@ export const Button = (
         children?: React.ReactNode
         margin?: string
         padding?: string
+        width?: string
         color?: string
         radius?: string
         onClick?: React.MouseEventHandler<HTMLButtonElement>
