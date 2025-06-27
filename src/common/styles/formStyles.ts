@@ -7,6 +7,7 @@ import { LuUserRoundPlus } from "react-icons/lu"
 import { LuUserRoundX } from "react-icons/lu"
 import { AiOutlineEuro } from "react-icons/ai"
 import { FiDownload } from "react-icons/fi"
+import { RiSave2Line } from "react-icons/ri"
 
 import * as color from '../../common/styles/colors'
 
@@ -177,7 +178,7 @@ export const IconModifyUser = styled(LuUserRoundPen)`
     color: ${color.white};
 `
 
-export const IconAdduser = styled(LuUserRoundPlus)`
+export const IconAddUser = styled(LuUserRoundPlus)`
     vertical-align: middle;
     padding: 0.2em;
     width: 2.25rem;
@@ -205,6 +206,15 @@ export const IconProcessPay = styled(AiOutlineEuro)`
 `
 
 export const IconHistorical = styled(FiDownload)`
+    vertical-align: middle;
+    padding: 0.2em;
+    width: 2.25rem;
+    height: auto;
+    border-radius: 0.5rem;
+    color: ${color.white};
+`
+
+export const IconSave = styled(RiSave2Line)`
     vertical-align: middle;
     padding: 0.2em;
     width: 2.25rem;
