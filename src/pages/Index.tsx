@@ -183,7 +183,7 @@ export default function Index() {
             <span className="text-sm text-gray-500">Intenta con otra búsqueda</span>
           </p>
         ) : (
-          <TablaOficinas datos={datosFinales} paginaActual={paginaActual} setPaginaActual={setPaginaActual} estado='activo' rutaDetalle='formunsuscribe' />
+          <TablaOficinas datos={datosFinales} paginaActual={paginaActual} setPaginaActual={setPaginaActual} estado='activo' rutaDetalle='formActive' />
         )}
       </div>
     </div>

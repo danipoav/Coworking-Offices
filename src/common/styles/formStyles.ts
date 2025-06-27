@@ -7,6 +7,7 @@ import { LuUserRoundPlus } from "react-icons/lu"
 import { LuUserRoundX } from "react-icons/lu"
 import { AiOutlineEuro } from "react-icons/ai"
 import { FiDownload } from "react-icons/fi"
+import { RiSave2Line } from "react-icons/ri"
 
 import * as color from '../../common/styles/colors'
 
@@ -92,22 +93,20 @@ export const Title = styled.h4`
 `
 
 export const InputText = styled.input<{ width?: string; editable?: boolean }>`
-  padding: 0.75em;
-  text-align: left;
-  height: 2.75rem;
-  width: ${props => props.width || '25rem'};
-  font-weight: 600;
-  border: 2px solid ${props => (props.editable ? color.black : color.grayBorderText)};
-  border-radius: 0.4rem;
-  color: ${props => (props.editable ? color.black : color.grayBorderText)};
-  background-color: ${color.grayBackgroundInput};
-  cursor: pointer;
+    padding: 0.75em;
+    text-align: left;
+    height: 2.75rem;
+    width: ${props => props.width || '25rem'};
+    font-weight: 600;
+    border: 2px solid ${props => (props.editable ? color.black : color.grayBorderText)};
+    border-radius: 0.4rem;
+    color: ${props => (props.editable ? color.black : color.grayBorderText)};
+    background-color: ${color.grayBackgroundInput};
+    cursor: pointer;
 
-  &:disabled {
-    color: ${color.grayBorderText};      /* Color cuando está disabled */
-    border-color: ${color.grayBorderText};
-    opacity: 1; /* Evita que el browser le baje opacidad automáticamente */
-  }
+    &::placeholder {
+        color: ${props => (props.editable ? color.grayBorderText : color.grayBackgroundInput)};
+    }
 `
 
 export const Select = styled.select<{ width?: string; editable?: boolean }>`
@@ -179,7 +178,7 @@ export const IconModifyUser = styled(LuUserRoundPen)`
     color: ${color.white};
 `
 
-export const IconAdduser = styled(LuUserRoundPlus)`
+export const IconAddUser = styled(LuUserRoundPlus)`
     vertical-align: middle;
     padding: 0.2em;
     width: 2.25rem;
@@ -207,6 +206,15 @@ export const IconProcessPay = styled(AiOutlineEuro)`
 `
 
 export const IconHistorical = styled(FiDownload)`
+    vertical-align: middle;
+    padding: 0.2em;
+    width: 2.25rem;
+    height: auto;
+    border-radius: 0.5rem;
+    color: ${color.white};
+`
+
+export const IconSave = styled(RiSave2Line)`
     vertical-align: middle;
     padding: 0.2em;
     width: 2.25rem;
