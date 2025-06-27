@@ -10,18 +10,17 @@ import { PopupText } from "../components/popupText/popupText"
 import * as styles from '../common/styles/formStyles'
 import * as color from '../common/styles/colors'
 import { db } from "../firebaseConfig"
-import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore";
-import { useAuth } from "../common/AuthContext";
+import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore"
+import { useAuth } from "../common/AuthContext"
 import { toast } from 'react-toastify'
 
-export const FormUnsuscribe = () => {
+export const FormActive = () => {
 
     const navigate = useNavigate()
     const empresaSeleccionada = useSelector((state: RootState) => state.empresas.empresaSeleccionada)
-    const { user } = useAuth();
+    const { user } = useAuth()
     const [isEditing, setIsEditing] = useState(false)
     const [showPopup, setShowPopup] = useState(false)
-
     const [company, setCompany] = useState<Empresa>({
         id: '',
         razon_social: '',
@@ -39,12 +38,9 @@ export const FormUnsuscribe = () => {
         comentarios: '',
         logo: ''
     })
-
     const [originalCompany, setOriginalCompany] = useState<Empresa | null>(null)
-
     const [telefono, setTelefono] = useState('')
     const [email, setEmail] = useState('')
-
     const nombresMeses = [
         'enero', 'febrero', 'marzo', 'abril',
         'mayo', 'junio', 'julio', 'agosto',
@@ -57,7 +53,6 @@ export const FormUnsuscribe = () => {
             setOriginalCompany(empresaSeleccionada)
         }
     }, [empresaSeleccionada])
-
     useEffect(() => {
         if (!company.fecha_inicio) return
 
@@ -80,7 +75,6 @@ export const FormUnsuscribe = () => {
 
     const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => setTelefono(e.target.value)
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)
-
     const handleAddTelefono = () => {
         if (telefono.trim()) {
             setCompany(prev => ({
@@ -90,7 +84,6 @@ export const FormUnsuscribe = () => {
             setTelefono('')
         }
     }
-
     const handleAddEmail = () => {
         if (email.trim()) {
             setCompany(prev => ({
@@ -100,14 +93,12 @@ export const FormUnsuscribe = () => {
             setEmail('')
         }
     }
-
     const handleRemoveTelefono = (index: number) => {
         setCompany(prev => ({
             ...prev,
             telefono_contacto: prev.telefono_contacto.filter((_, i) => i !== index)
         }))
     }
-
     const handleRemoveEmail = (index: number) => {
         setCompany(prev => ({
             ...prev,
@@ -119,24 +110,20 @@ export const FormUnsuscribe = () => {
         const { name, value } = e.target
         setCompany(prev => ({ ...prev, [name]: value }))
     }
-
     const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const { name, value } = e.target
         setCompany(prev => ({ ...prev, [name]: value }))
     }
-
     const handleFechaInicioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const ym = e.target.value
         const fechaInicioCompleta = `01-${ym.split('-')[1]}-${ym.split('-')[0]}`
         setCompany(prev => ({ ...prev, fecha_inicio: fechaInicioCompleta }))
     }
-
     const handleModalidadChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const modalidad = e.target.value as Modalidad
         const isMyBusiness = modalidad === Modalidad.myBusiness
         setCompany(prev => ({ ...prev, modalidad, myBusiness: isMyBusiness }))
     }
-
     const handleCheckboxChange = () => {
         if (company.renovacion) {
             setCompany(prev => ({ ...prev, renovacion: false }))
@@ -146,32 +133,29 @@ export const FormUnsuscribe = () => {
             setShowPopup(false)
         }
     }
-
     const handlePopupCancel = () => {
         setCompany(prev => ({ ...prev, renovacion: true }))
         setShowPopup(false)
     }
-
     const handlePopupSave = async (text: string) => {
-        if (!originalCompany) return;
+        if (!originalCompany) return
 
         const cambios = {
             "Motivo Baja": {
                 antes: "",
                 despues: text
             }
-        };
+        }
 
         try {
-            await saveHistoricalChanges(originalCompany.id, cambios);
-            toast.success("Motivo de baja guardado en el historial.");
+            await saveHistoricalChanges(originalCompany.id, cambios)
+            toast.success("Motivo de baja guardado en el historial.")
         } catch (error) {
-            toast.error("Error guardando motivo de baja.");
-            console.error(error);
+            toast.error("Error guardando motivo de baja.")
+            console.error(error)
         }
         setShowPopup(false)
     }
-
     const addMonthsToYYYYMM = (yyyymm: string, monthsToAdd: number): string => {
         const [yearStr, monthStr] = yyyymm.split('-')
         let year = Number(yearStr)
@@ -183,7 +167,6 @@ export const FormUnsuscribe = () => {
 
         return `${year}-${String(month).padStart(2, '0')}`
     }
-
     const getLastDayOfMonth = (yyyyMm: string): string => {
         const [yearStr, monthStr] = yyyyMm.split('-')
         const lastDayDate = new Date(Number(yearStr), Number(monthStr), 0)
@@ -195,78 +178,74 @@ export const FormUnsuscribe = () => {
         setOriginalCompany(company)
         setIsEditing(true)
     }
-
     const handleSave = async () => {
-        if (!originalCompany) return;
+        if (!originalCompany) return
 
         const cambios = Object.entries(company).reduce((acc, [key, value]) => {
             if (JSON.stringify(value) !== JSON.stringify((originalCompany as any)[key])) {
                 acc[key] = {
                     antes: (originalCompany as any)[key],
                     despues: value
-                };
+                }
             }
-            return acc;
-        }, {} as Record<string, any>);
+            return acc
+        }, {} as Record<string, any>)
 
         if (Object.keys(cambios).length > 0) {
-            console.log("Cambios detectados:", cambios);
-            saveHistoricalChanges(originalCompany.id, cambios);
-            await updateCompany(originalCompany.id, cambios);
+            console.log("Cambios detectados:", cambios)
+            saveHistoricalChanges(originalCompany.id, cambios)
+            await updateCompany(originalCompany.id, cambios)
         } else {
-            console.log("No se detectaron cambios.");
+            console.log("No se detectaron cambios.")
         }
 
-        setIsEditing(false);
-    };
-
+        setIsEditing(false)
+    }
     const saveHistoricalChanges = async (companyId: string, cambios: Record<string, any>) => {
         try {
-            const historicoRef = doc(db, "HistoricoList", companyId);
-            const historicoSnap = await getDoc(historicoRef);
+            const historicoRef = doc(db, "HistoricoList", companyId)
+            const historicoSnap = await getDoc(historicoRef)
 
-            const fecha = new Date();
+            const fecha = new Date()
             const entradaHistorial = {
                 fecha: fecha.toISOString(),
                 usuario: user?.email || "desconocido",
                 cambios: cambios,
-            };
+            }
 
             if (historicoSnap.exists()) {
                 // Ya existe, actualizamos agregando al historial
                 await updateDoc(historicoRef, {
                     historial: arrayUnion(entradaHistorial)
-                });
+                })
             } else {
                 // No existe, lo creamos
                 await setDoc(historicoRef, {
                     empresaId: companyId,
                     historial: [entradaHistorial]
-                });
+                })
             }
 
-            console.log("Historial actualizado correctamente.");
+            console.log("Historial actualizado correctamente.")
         } catch (error) {
-            console.error("Error guardando en historial:", error);
+            console.error("Error guardando en historial:", error)
         }
 
 
-    };
-
+    }
     const updateCompany = async (companyId: string, cambios: Record<string, any>) => {
         try {
-            const companyRef = doc(db, "EmpresaList", companyId);
+            const companyRef = doc(db, "EmpresaList", companyId)
             const updatedFields = Object.fromEntries(
                 Object.entries(cambios).map(([key, change]) => [key, change.despues])
-            );
+            )
 
-            await updateDoc(companyRef, updatedFields);
-            console.log("Empresa actualizada con éxito");
+            await updateDoc(companyRef, updatedFields)
+            console.log("Empresa actualizada con éxito")
         } catch (error) {
-            console.error("Error actualizando empresa:", error);
+            console.error("Error actualizando empresa:", error)
         }
-    };
-
+    }
     const downloadHistoric = async (companyId: string) => {
         const historicoRef = doc(db, 'HistoricoList', companyId)
         const snapshot = await getDoc(historicoRef)
@@ -298,7 +277,7 @@ export const FormUnsuscribe = () => {
         })
 
         // Crear y descargar archivo .txt
-        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+        const blob = new Blob([content], { type: 'text/plaincharset=utf-8' })
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
@@ -309,49 +288,49 @@ export const FormUnsuscribe = () => {
         toast.success('Historial descargado correctamente.')
     }
     const handleProcesarPago = () => {
-        const confirmado = window.confirm("¿Estás seguro de que quieres procesar el pago?");
+        const confirmado = window.confirm("¿Estás seguro de que quieres procesar el pago?")
         if (confirmado) {
-            procesarPago();
+            procesarPago()
         }
-    };
+    }
     const procesarPago = async () => {
-        if (!originalCompany) return;
+        if (!originalCompany) return
 
         // Paso 1: calcular nueva fecha de inicio = día siguiente a la fecha_renovacion actual
-        const [dia, mes, anio] = company.fecha_renovacion.split('-').map(Number);
-        const fechaRenovacionActual = new Date(anio, mes - 1, dia);
-        const nuevaFechaInicioDate = new Date(fechaRenovacionActual);
-        nuevaFechaInicioDate.setDate(nuevaFechaInicioDate.getDate() + 1);
+        const [dia, mes, anio] = company.fecha_renovacion.split('-').map(Number)
+        const fechaRenovacionActual = new Date(anio, mes - 1, dia)
+        const nuevaFechaInicioDate = new Date(fechaRenovacionActual)
+        nuevaFechaInicioDate.setDate(nuevaFechaInicioDate.getDate() + 1)
 
-        const nuevaFechaInicio = `${String(nuevaFechaInicioDate.getDate()).padStart(2, '0')}-${String(nuevaFechaInicioDate.getMonth() + 1).padStart(2, '0')}-${nuevaFechaInicioDate.getFullYear()}`;
+        const nuevaFechaInicio = `${String(nuevaFechaInicioDate.getDate()).padStart(2, '0')}-${String(nuevaFechaInicioDate.getMonth() + 1).padStart(2, '0')}-${nuevaFechaInicioDate.getFullYear()}`
 
         // Paso 2: determinar meses a sumar según modalidad
-        let mesesASumar: number;
+        let mesesASumar: number
 
         switch (company.modalidad) {
             case Modalidad.trimestral:
-                mesesASumar = 2;
-                break;
+                mesesASumar = 2
+                break
             case Modalidad.semestral:
-                mesesASumar = 5;
-                break;
+                mesesASumar = 5
+                break
             case Modalidad.anual:
             case Modalidad.myBusiness:
-                mesesASumar = 11;
-                break;
+                mesesASumar = 11
+                break
             default:
-                throw new Error(`Modalidad no reconocida: ${company.modalidad}`);
+                throw new Error(`Modalidad no reconocida: ${company.modalidad}`)
         }
 
-        const fechaRenovacionFinalDate = new Date(nuevaFechaInicioDate.getFullYear(), nuevaFechaInicioDate.getMonth() + mesesASumar + 1, 0); // último día del mes resultante
-        const nuevaFechaRenovacion = `${String(fechaRenovacionFinalDate.getDate()).padStart(2, '0')}-${String(fechaRenovacionFinalDate.getMonth() + 1).padStart(2, '0')}-${fechaRenovacionFinalDate.getFullYear()}`;
+        const fechaRenovacionFinalDate = new Date(nuevaFechaInicioDate.getFullYear(), nuevaFechaInicioDate.getMonth() + mesesASumar + 1, 0) // último día del mes resultante
+        const nuevaFechaRenovacion = `${String(fechaRenovacionFinalDate.getDate()).padStart(2, '0')}-${String(fechaRenovacionFinalDate.getMonth() + 1).padStart(2, '0')}-${fechaRenovacionFinalDate.getFullYear()}`
 
         // Paso 3: actualizar campos en el estado local
         const empresaActualizada: Empresa = {
             ...company,
             fecha_inicio: nuevaFechaInicio,
             fecha_renovacion: nuevaFechaRenovacion
-        };
+        }
 
         // Paso 4: detectar cambios con respecto al original
         const cambios = Object.entries(empresaActualizada).reduce((acc, [key, value]) => {
@@ -359,66 +338,62 @@ export const FormUnsuscribe = () => {
                 acc[key] = {
                     antes: (originalCompany as any)[key],
                     despues: value
-                };
+                }
             }
-            return acc;
-        }, {} as Record<string, { antes: any; despues: any }>);
+            return acc
+        }, {} as Record<string, { antes: any; despues: any }>)
 
         if (Object.keys(cambios).length > 0) {
-            console.log("Cambios procesados por pago:", cambios);
-            await saveHistoricalChanges(originalCompany.id, cambios);
-            await updateCompany(originalCompany.id, cambios);
-            setCompany(empresaActualizada);
-            setOriginalCompany(empresaActualizada);
-            toast.success("Pago procesado y fechas actualizadas con éxito.");
+            console.log("Cambios procesados por pago:", cambios)
+            await saveHistoricalChanges(originalCompany.id, cambios)
+            await updateCompany(originalCompany.id, cambios)
+            setCompany(empresaActualizada)
+            setOriginalCompany(empresaActualizada)
+            toast.success("Pago procesado y fechas actualizadas con éxito.")
         } else {
-            console.log("No se detectaron cambios al procesar pago.");
-            toast.info("No se detectaron cambios al procesar el pago.");
+            console.log("No se detectaron cambios al procesar pago.")
+            toast.info("No se detectaron cambios al procesar el pago.")
         }
-    };
-
+    }
     const handleDarDeBajaEmpresa = () => {
-        const confirmado = window.confirm("¿Estás seguro de que quieres dar de baja la empresa?");
+        const confirmado = window.confirm("¿Estás seguro de que quieres dar de baja la empresa?")
         if (confirmado) {
-            darDeBajaEmpresa();
+            darDeBajaEmpresa()
         }
-    };
-
+    }
     const darDeBajaEmpresa = async () => {
         if (!company.id) {
-            toast.error("Empresa no válida o sin ID.");
-            return;
+            toast.error("Empresa no válida o sin ID.")
+            return
         }
 
         try {
-            const empresaRef = doc(db, "EmpresaList", company.id);
-            const empresaSnap = await getDoc(empresaRef);
+            const empresaRef = doc(db, "EmpresaList", company.id)
+            const empresaSnap = await getDoc(empresaRef)
 
             if (!empresaSnap.exists()) {
-                toast.error("No se encontró la empresa en la base de datos.");
-                return;
+                toast.error("No se encontró la empresa en la base de datos.")
+                return
             }
 
-            const datosEmpresa = empresaSnap.data();
+            const datosEmpresa = empresaSnap.data()
 
-            const bajaRef = doc(db, "BajasList", company.id);
+            const bajaRef = doc(db, "BajasList", company.id)
             await setDoc(bajaRef, {
                 ...datosEmpresa,
                 fecha_baja: new Date().toISOString()
-            });
+            })
 
-            await deleteDoc(empresaRef);
+            await deleteDoc(empresaRef)
 
-            toast.success("Empresa dada de baja correctamente.");
+            toast.success("Empresa dada de baja correctamente.")
         } catch (error) {
-            console.error("Error al dar de baja la empresa:", error);
-            toast.error("Error al dar de baja la empresa.");
+            console.error("Error al dar de baja la empresa:", error)
+            toast.error("Error al dar de baja la empresa.")
         }
-    };
+    }
 
     return (<>
-
-
 
         <styles.GlobalDateTimeStyles />
         {showPopup && (
@@ -483,9 +458,8 @@ export const FormUnsuscribe = () => {
                             +
                         </styles.ButtonAddDelete>
                     </styles.EntryHorizontal>
-                    {company.email.length > 0 && (
-                        <styles.ArrayBox
-                            editable={isEditing}>
+                    {Array.isArray(company.email) && company.email.length > 0 && (
+                        <styles.ArrayBox editable={isEditing}>
                             {company.email.map((email, index) => (
                                 <styles.ArrayItem key={index}>
                                     {email}
@@ -524,9 +498,8 @@ export const FormUnsuscribe = () => {
                             +
                         </styles.ButtonAddDelete>
                     </styles.EntryHorizontal>
-                    {company.telefono_contacto.length > 0 && (
-                        <styles.ArrayBox
-                            editable={isEditing}>
+                    {Array.isArray(company.telefono_contacto) && company.telefono_contacto.length > 0 && (
+                        <styles.ArrayBox editable={isEditing}>
                             {company.telefono_contacto.map((telefono, index) => (
                                 <styles.ArrayItem key={index}>
                                     {telefono}
@@ -650,6 +623,7 @@ export const FormUnsuscribe = () => {
                             padding="0.5em 0"
                             onClick={handleSave}
                         >
+                            <styles.IconSave />
                             Guardar
                         </Button>
                     )}
