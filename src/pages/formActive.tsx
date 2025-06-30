@@ -76,23 +76,33 @@ export const FormActive = () => {
     const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => setTelefono(e.target.value)
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)
     const handleAddTelefono = () => {
-        if (telefono.trim()) {
-            setCompany(prev => ({
-                ...prev,
-                telefono_contacto: [...prev.telefono_contacto, telefono.trim()]
-            }))
-            setTelefono('')
+        const trimmedPhone = telefono.trim();
+        if (!isValidPhone(trimmedPhone)) {
+            toast.error("Introduce un teléfono válido con al menos 9 dígitos (solo números, espacios y '+').");
+            return;
         }
-    }
+
+        setCompany(prev => ({
+            ...prev,
+            telefono_contacto: [...prev.telefono_contacto, trimmedPhone]
+        }));
+        setTelefono('');
+    };
+
     const handleAddEmail = () => {
-        if (email.trim()) {
-            setCompany(prev => ({
-                ...prev,
-                email: [...prev.email, email.trim()]
-            }))
-            setEmail('')
+        const trimmedEmail = email.trim();
+        if (!isValidEmail(trimmedEmail)) {
+            toast.error("Introduce un correo electrónico válido.");
+            return;
         }
-    }
+
+        setCompany(prev => ({
+            ...prev,
+            email: [...prev.email, trimmedEmail]
+        }));
+        setEmail('');
+    };
+
     const handleRemoveTelefono = (index: number) => {
         setCompany(prev => ({
             ...prev,
@@ -173,6 +183,15 @@ export const FormActive = () => {
         const dd = String(lastDayDate.getDate()).padStart(2, '0')
         return `${dd}-${monthStr}-${yearStr}`
     }
+    const isValidEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+    const isValidPhone = (telefono: string): boolean => {
+        const digitsOnly = telefono.replace(/[^\d]/g, '');
+        const phoneRegex = /^[\d +]+$/;
+        return phoneRegex.test(telefono) && digitsOnly.length >= 9;
+    };
 
     const handleEditToggle = () => {
         setOriginalCompany(company)
@@ -287,6 +306,7 @@ export const FormActive = () => {
 
         toast.success('Historial descargado correctamente.')
     }
+
     const handleProcesarPago = () => {
         const confirmado = window.confirm("¿Estás seguro de que quieres procesar el pago?")
         if (confirmado) {
@@ -358,6 +378,17 @@ export const FormActive = () => {
     const handleDarDeBajaEmpresa = () => {
         const confirmado = window.confirm("¿Estás seguro de que quieres dar de baja la empresa?")
         if (confirmado) {
+            company.renovacion = false
+            const cambios = Object.entries(company).reduce((acc, [key, value]) => {
+                if (JSON.stringify(value) !== JSON.stringify((originalCompany as any)[key])) {
+                    acc[key] = {
+                        antes: (originalCompany as any)[key],
+                        despues: value
+                    }
+                }
+                return acc
+            }, {} as Record<string, any>)
+            updateCompany(company.id, cambios)
             darDeBajaEmpresa()
         }
     }
