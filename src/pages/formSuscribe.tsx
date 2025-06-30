@@ -11,7 +11,7 @@ import { PopupText } from "../components/popupText/popupText"
 import * as styles from '../common/styles/formStyles'
 import * as color from '../common/styles/colors'
 import { db } from "../firebaseConfig"
-import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore"
+import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion, deleteDoc, addDoc } from "firebase/firestore"
 import { useAuth } from "../common/AuthContext"
 import { toast } from 'react-toastify'
 
@@ -30,13 +30,13 @@ export const FormSuscribe = () => {
         modalidad: Modalidad.trimestral,
         myBusiness: false,
         pendiente_pago: false,
-        renovacion: false,
+        renovacion: true,
         contacto: '',
         telefono_contacto: [],
         titular: '',
         telefono_titular: '',
         comentarios: '',
-        logo: ''
+        logo: 'No'
     })
     const [originalCompany, setOriginalCompany] = useState<Empresa | null>(null)
     const [telefono, setTelefono] = useState('')
@@ -47,12 +47,6 @@ export const FormSuscribe = () => {
         'septiembre', 'octubre', 'noviembre', 'diciembre',
     ]
 
-    useEffect(() => {
-        if (empresaSeleccionada) {
-            setCompany(empresaSeleccionada)
-            setOriginalCompany(empresaSeleccionada)
-        }
-    }, [empresaSeleccionada])
     useEffect(() => {
         if (!company.fecha_inicio) return
 
@@ -76,23 +70,33 @@ export const FormSuscribe = () => {
     const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => setTelefono(e.target.value)
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)
     const handleAddTelefono = () => {
-        if (telefono.trim()) {
-            setCompany(prev => ({
-                ...prev,
-                telefono_contacto: [...prev.telefono_contacto, telefono.trim()]
-            }))
-            setTelefono('')
+        const trimmedPhone = telefono.trim();
+        if (!isValidPhone(trimmedPhone)) {
+            toast.error("Introduce un teléfono válido con al menos 9 dígitos (solo números, espacios y '+').");
+            return;
         }
-    }
+
+        setCompany(prev => ({
+            ...prev,
+            telefono_contacto: [...prev.telefono_contacto, trimmedPhone]
+        }));
+        setTelefono('');
+    };
+
     const handleAddEmail = () => {
-        if (email.trim()) {
-            setCompany(prev => ({
-                ...prev,
-                email: [...prev.email, email.trim()]
-            }))
-            setEmail('')
+        const trimmedEmail = email.trim();
+        if (!isValidEmail(trimmedEmail)) {
+            toast.error("Introduce un correo electrónico válido.");
+            return;
         }
-    }
+
+        setCompany(prev => ({
+            ...prev,
+            email: [...prev.email, trimmedEmail]
+        }));
+        setEmail('');
+    };
+
     const handleRemoveTelefono = (index: number) => {
         setCompany(prev => ({
             ...prev,
@@ -168,6 +172,17 @@ export const FormSuscribe = () => {
         const dd = String(lastDayDate.getDate()).padStart(2, '0')
         return `${dd}-${monthStr}-${yearStr}`
     }
+    const isValidEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+    const isValidPhone = (telefono: string): boolean => {
+        const digitsOnly = telefono.replace(/[^\d]/g, ''); // eliminamos todo lo que no sea número
+        const phoneRegex = /^[\d +]+$/;
+        return phoneRegex.test(telefono) && digitsOnly.length >= 9;
+    };
+
+
 
     const saveHistoricalChanges = async (companyId: string, cambios: Record<string, any>) => {
         try {
@@ -202,42 +217,75 @@ export const FormSuscribe = () => {
 
     }
     const handleDarDeAltaEmpresa = () => {
-        const confirmado = window.confirm("¿Estás seguro de que quieres dar de baja la empresa?")
+        const esValido = validateCompany(company);
+
+        if (!esValido) {
+            toast.error("Revisa los campos obligatorios del formulario.");
+            return;
+        }
+        const confirmado = window.confirm("¿Estás seguro de que quieres dar de Alta la empresa?")
         if (confirmado) {
             darDeAltaEmpresa()
         }
     }
+    const validateCompany = (empresa: Empresa): boolean => {
+        if (!empresa.razon_social || empresa.razon_social.trim().length < 3) {
+            toast.error("La razón social debe tener al menos 3 caracteres.");
+            return false;
+        }
+
+        if (!Array.isArray(empresa.email) || empresa.email.length === 0) {
+            toast.error("Debe incluir al menos un correo electrónico.");
+            return false;
+        }
+
+        if (!empresa.fecha_inicio || empresa.fecha_inicio.trim() === "") {
+            toast.error("La fecha de inicio no puede estar vacía.");
+            return false;
+        }
+
+        if (!empresa.contacto || empresa.contacto.trim().length < 3) {
+            toast.error("El nombre del contacto debe tener al menos 3 caracteres.");
+            return false;
+        }
+
+        if (!Array.isArray(empresa.telefono_contacto) || empresa.telefono_contacto.length === 0) {
+            toast.error("Debe incluir al menos un teléfono de contacto.");
+            return false;
+        }
+
+        if (!empresa.titular || empresa.titular.trim().length < 3) {
+            toast.error("El titular debe tener al menos 3 caracteres.");
+            return false;
+        }
+
+        const telefonoValido = /^[\d +]+$/.test(empresa.telefono_titular.trim());
+        if (!telefonoValido) {
+            toast.error("El teléfono del titular solo puede contener números, espacios o '+'.");
+            return false;
+        }
+
+        return true;
+    };
+
+
     const darDeAltaEmpresa = async () => {
-        if (!company.id) {
-            toast.error("Empresa no válida o sin ID.")
-            return
-        }
-
         try {
-            const empresaRef = doc(db, "EmpresaList", company.id)
-            const empresaSnap = await getDoc(empresaRef)
+            const docRef = await addDoc(collection(db, "EmpresaList"), company);
+            const newId = docRef.id;
 
-            if (!empresaSnap.exists()) {
-                toast.error("No se encontró la empresa en la base de datos.")
-                return
-            }
+            await updateDoc(docRef, { id: newId });
 
-            const datosEmpresa = empresaSnap.data()
+            company.id = newId;
 
-            const bajaRef = doc(db, "BajasList", company.id)
-            await setDoc(bajaRef, {
-                ...datosEmpresa,
-                fecha_baja: new Date().toISOString()
-            })
-
-            await deleteDoc(empresaRef)
-
-            toast.success("Empresa dada de baja correctamente.")
+            toast.success("Empresa dada de alta correctamente.");
+            navigate("/home");
         } catch (error) {
-            console.error("Error al dar de baja la empresa:", error)
-            toast.error("Error al dar de baja la empresa.")
+            console.error("Error al dar de alta la empresa:", error);
+            toast.error("Error al dar de alta la empresa.");
         }
-    }
+    };
+
 
     return (<>
 
@@ -267,6 +315,7 @@ export const FormSuscribe = () => {
                         name='razon_social'
                         value={company?.razon_social || ''}
                         type='text'
+                        editable={true}
                         placeholder='Ejm: Farogems Jewls OU'
                         onChange={handleStringChange}>
                     </styles.InputText>
@@ -277,6 +326,7 @@ export const FormSuscribe = () => {
                         name='contacto'
                         value={company?.contacto || ''}
                         type='text'
+                        editable={true}
                         placeholder='Ejm: Juan Pérez Solís'
                         onChange={handleStringChange}>
                     </styles.InputText>
@@ -288,12 +338,14 @@ export const FormSuscribe = () => {
                             type='text'
                             placeholder='Ejm: correo@correo.com'
                             name='email'
+                            editable={true}
                             value={email}
                             onChange={handleEmailChange}
                         ></styles.InputText>
                         <styles.ButtonAddDelete
                             margin="0 0 0 0.5rem"
                             color={color.green}
+                            editable={true}
                             onClick={handleAddEmail}>
                             +
                         </styles.ButtonAddDelete>
@@ -306,6 +358,7 @@ export const FormSuscribe = () => {
                                     <styles.ButtonAddDelete
                                         margin="0 0 0 0.35rem"
                                         color={color.red}
+                                        editable={true}
                                         onClick={() => handleRemoveEmail(index)}>
                                         &times;
                                     </styles.ButtonAddDelete>
@@ -322,12 +375,14 @@ export const FormSuscribe = () => {
                             placeholder='Ejm: 612345678'
                             width='13.5rem'
                             name='telefono_contacto'
+                            editable={true}
                             value={telefono}
                             onChange={handleTelefonoChange}
                         ></styles.InputText>
                         <styles.ButtonAddDelete
                             margin="0 0 0 0.5rem"
                             color={color.green}
+                            editable={true}
                             onClick={handleAddTelefono}>
                             +
                         </styles.ButtonAddDelete>
@@ -340,6 +395,7 @@ export const FormSuscribe = () => {
                                     <styles.ButtonAddDelete
                                         margin="0 0 0 0.35rem"
                                         color={color.red}
+                                        editable={true}
                                         onClick={() => handleRemoveTelefono(index)}>
                                         &times;
                                     </styles.ButtonAddDelete>
@@ -353,6 +409,7 @@ export const FormSuscribe = () => {
                     <styles.InputText
                         name="fecha_inicio"
                         type="month"
+                        editable={true}
                         width="13.5rem"
                         value={
                             company.fecha_inicio
@@ -368,6 +425,7 @@ export const FormSuscribe = () => {
                         name="modalidad"
                         value={company?.modalidad || ''}
                         width='11.5rem'
+                        editable={true}
                         onChange={handleModalidadChange}>
                         <option>{Modalidad.trimestral}</option>
                         <option>{Modalidad.semestral}</option>
@@ -384,6 +442,7 @@ export const FormSuscribe = () => {
                         name="titular"
                         value={company?.titular || ''}
                         type='text'
+                        editable={true}
                         placeholder='Ejm: Juan Pérez Solís'
                         onChange={handleStringChange}>
                     </styles.InputText>
@@ -394,6 +453,7 @@ export const FormSuscribe = () => {
                         name="telefono_titular"
                         value={company?.telefono_titular || ''}
                         type='text'
+                        editable={true}
                         placeholder='Ejm: 612345678'
                         width='13.5rem'
                         onChange={handleStringChange}></styles.InputText>
@@ -404,6 +464,7 @@ export const FormSuscribe = () => {
                         name="logo"
                         value={company?.logo || ''}
                         width='11.5rem'
+                        editable={true}
                         onChange={handleLogoChange}>
                         <option>{Logo.si}</option>
                         <option>{Logo.no}</option>
@@ -416,6 +477,7 @@ export const FormSuscribe = () => {
                         name="fecha_renovacion"
                         type="text"
                         width="13.5rem"
+                        editable={true}
                         readOnly
                         value={
                             company.fecha_renovacion &&
@@ -434,6 +496,7 @@ export const FormSuscribe = () => {
                     <styles.TextArea
                         name="comentarios"
                         width='20rem'
+                        editable={true}
                         onChange={handleTextAreaChange}>
                     </styles.TextArea>
                 </styles.EntryVertical>
