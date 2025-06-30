@@ -16,6 +16,13 @@ export default function Index() {
   const dispatch = useAppDispatch();
   const { empresas, loading, error } = useAppSelector((state) => state.empresas);
   const [mesInicialSeteado, setMesInicialSeteado] = useState(false);
+  
+  const ordenModalidad = {
+    "My business":0,
+    "Anual": 1,
+    "Trimestral": 2,
+    "Semestral": 3
+  };
 
   useEffect(() => {
     dispatch(fetchEmpresas());
@@ -97,7 +104,7 @@ export default function Index() {
 
   const [yearStr, monthStr] = selectedMonthKey.split("-");
   const year = Number(yearStr);
-  const month = Number(monthStr) - 1; 
+  const month = Number(monthStr) - 1;
 
   const currentMonthDate = new Date(year, month);
 
@@ -116,11 +123,11 @@ export default function Index() {
   });
 
   // Ordenamos por fecha
-  const datosFiltradosOrdenados = datosFiltrados.sort((a, b) => {
-    const fechaA = parseFechaEuropea(a.fecha_inicio).getTime();
-    const fechaB = parseFechaEuropea(b.fecha_inicio).getTime();
-    return fechaA - fechaB;
-  });
+const datosFiltradosOrdenados = datosFiltrados.sort((a, b) => {
+  const ordenA = ordenModalidad[a.modalidad] ?? 99;  // por si falta el campo o es distinto
+  const ordenB = ordenModalidad[b.modalidad] ?? 99;
+  return ordenA - ordenB;
+});
 
   // Si hay búsqueda, filtramos también por texto y ordenamos
   const datosFinales = busqueda.trim()
