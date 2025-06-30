@@ -14,6 +14,7 @@ import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion, deleteDoc } fro
 import { useAuth } from "../common/AuthContext"
 import { toast } from 'react-toastify'
 
+
 export const FormActive = () => {
 
     const navigate = useNavigate()
@@ -76,32 +77,32 @@ export const FormActive = () => {
     const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => setTelefono(e.target.value)
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)
     const handleAddTelefono = () => {
-        const trimmedPhone = telefono.trim();
+        const trimmedPhone = telefono.trim()
         if (!isValidPhone(trimmedPhone)) {
-            toast.error("Introduce un teléfono válido con al menos 9 dígitos (solo números, espacios y '+').");
-            return;
+            toast.error("Introduce un teléfono válido con al menos 9 dígitos (solo números, espacios y '+').")
+            return
         }
 
         setCompany(prev => ({
             ...prev,
             telefono_contacto: [...prev.telefono_contacto, trimmedPhone]
-        }));
-        setTelefono('');
-    };
+        }))
+        setTelefono('')
+    }
 
     const handleAddEmail = () => {
-        const trimmedEmail = email.trim();
+        const trimmedEmail = email.trim()
         if (!isValidEmail(trimmedEmail)) {
-            toast.error("Introduce un correo electrónico válido.");
-            return;
+            toast.error("Introduce un correo electrónico válido.")
+            return
         }
 
         setCompany(prev => ({
             ...prev,
             email: [...prev.email, trimmedEmail]
-        }));
-        setEmail('');
-    };
+        }))
+        setEmail('')
+    }
 
     const handleRemoveTelefono = (index: number) => {
         setCompany(prev => ({
@@ -162,7 +163,6 @@ export const FormActive = () => {
             toast.success("Motivo de baja guardado en el historial.")
         } catch (error) {
             toast.error("Error guardando motivo de baja.")
-            console.error(error)
         }
         setShowPopup(false)
     }
@@ -184,14 +184,14 @@ export const FormActive = () => {
         return `${dd}-${monthStr}-${yearStr}`
     }
     const isValidEmail = (email: string): boolean => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        return emailRegex.test(email)
+    }
     const isValidPhone = (telefono: string): boolean => {
-        const digitsOnly = telefono.replace(/[^\d]/g, '');
-        const phoneRegex = /^[\d +]+$/;
-        return phoneRegex.test(telefono) && digitsOnly.length >= 9;
-    };
+        const digitsOnly = telefono.replace(/[^\d]/g, '')
+        const phoneRegex = /^[\d +]+$/
+        return phoneRegex.test(telefono) && digitsOnly.length >= 9
+    }
 
     const handleEditToggle = () => {
         setOriginalCompany(company)
@@ -211,11 +211,8 @@ export const FormActive = () => {
         }, {} as Record<string, any>)
 
         if (Object.keys(cambios).length > 0) {
-            console.log("Cambios detectados:", cambios)
             saveHistoricalChanges(originalCompany.id, cambios)
             await updateCompany(originalCompany.id, cambios)
-        } else {
-            console.log("No se detectaron cambios.")
         }
 
         setIsEditing(false)
@@ -244,10 +241,8 @@ export const FormActive = () => {
                     historial: [entradaHistorial]
                 })
             }
-
-            console.log("Historial actualizado correctamente.")
         } catch (error) {
-            console.error("Error guardando en historial:", error)
+            toast.error(`Error guardando en historial: ${error}`)
         }
 
 
@@ -260,9 +255,8 @@ export const FormActive = () => {
             )
 
             await updateDoc(companyRef, updatedFields)
-            console.log("Empresa actualizada con éxito")
         } catch (error) {
-            console.error("Error actualizando empresa:", error)
+            toast.error(`Error actualizando empresa: ${error}`)
         }
     }
     const downloadHistoric = async (companyId: string) => {
@@ -364,14 +358,12 @@ export const FormActive = () => {
         }, {} as Record<string, { antes: any; despues: any }>)
 
         if (Object.keys(cambios).length > 0) {
-            console.log("Cambios procesados por pago:", cambios)
             await saveHistoricalChanges(originalCompany.id, cambios)
             await updateCompany(originalCompany.id, cambios)
             setCompany(empresaActualizada)
             setOriginalCompany(empresaActualizada)
             toast.success("Pago procesado y fechas actualizadas con éxito.")
         } else {
-            console.log("No se detectaron cambios al procesar pago.")
             toast.info("No se detectaron cambios al procesar el pago.")
         }
     }
@@ -419,7 +411,6 @@ export const FormActive = () => {
 
             toast.success("Empresa dada de baja correctamente.")
         } catch (error) {
-            console.error("Error al dar de baja la empresa:", error)
             toast.error("Error al dar de baja la empresa.")
         }
     }
@@ -441,7 +432,6 @@ export const FormActive = () => {
                     <styles.CompanyName>
                         {company?.razon_social || ''}
                     </styles.CompanyName>
-                    {/* PONER BOTON O SIMILAR PARA SABER "ACTIVA, INACTIVA O PENDIENTE DE PAGO" */}
                 </styles.EntryVertical>
 
                 <styles.EntryVertical>
