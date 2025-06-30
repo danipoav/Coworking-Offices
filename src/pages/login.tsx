@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -14,13 +15,13 @@ function Login() {
         try {
             const userCred = await signInWithEmailAndPassword(auth, email, password);
             console.log("Sesión iniciada:", userCred.user.email);
-            alert("Bienvenido");
+            toast.success('Bienvenido')
             navigate("/home");
         } catch (error: unknown) {
             if (error instanceof Error) {
-                alert("Error al iniciar sesión: " + error.message);
+                toast.error("Error al iniciar sesión: " + error.message);
             } else {
-                alert("Error desconocido.");
+                toast.error("Error desconocido.");
             }
         }
     };
