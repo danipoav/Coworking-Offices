@@ -15,6 +15,7 @@ import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion, deleteDoc, addD
 import { useAuth } from "../common/AuthContext"
 import { toast } from 'react-toastify'
 
+
 export const FormSuscribe = () => {
 
     const navigate = useNavigate()
@@ -70,32 +71,32 @@ export const FormSuscribe = () => {
     const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => setTelefono(e.target.value)
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)
     const handleAddTelefono = () => {
-        const trimmedPhone = telefono.trim();
+        const trimmedPhone = telefono.trim()
         if (!isValidPhone(trimmedPhone)) {
-            toast.error("Introduce un teléfono válido con al menos 9 dígitos (solo números, espacios y '+').");
-            return;
+            toast.error("Introduce un teléfono válido con al menos 9 dígitos (solo números, espacios y '+').")
+            return
         }
 
         setCompany(prev => ({
             ...prev,
             telefono_contacto: [...prev.telefono_contacto, trimmedPhone]
-        }));
-        setTelefono('');
-    };
+        }))
+        setTelefono('')
+    }
 
     const handleAddEmail = () => {
-        const trimmedEmail = email.trim();
+        const trimmedEmail = email.trim()
         if (!isValidEmail(trimmedEmail)) {
-            toast.error("Introduce un correo electrónico válido.");
-            return;
+            toast.error("Introduce un correo electrónico válido.")
+            return
         }
 
         setCompany(prev => ({
             ...prev,
             email: [...prev.email, trimmedEmail]
-        }));
-        setEmail('');
-    };
+        }))
+        setEmail('')
+    }
 
     const handleRemoveTelefono = (index: number) => {
         setCompany(prev => ({
@@ -151,7 +152,6 @@ export const FormSuscribe = () => {
             toast.success("Motivo de baja guardado en el historial.")
         } catch (error) {
             toast.error("Error guardando motivo de baja.")
-            console.error(error)
         }
         setShowPopup(false)
     }
@@ -173,16 +173,14 @@ export const FormSuscribe = () => {
         return `${dd}-${monthStr}-${yearStr}`
     }
     const isValidEmail = (email: string): boolean => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        return emailRegex.test(email)
+    }
     const isValidPhone = (telefono: string): boolean => {
-        const digitsOnly = telefono.replace(/[^\d]/g, ''); // eliminamos todo lo que no sea número
-        const phoneRegex = /^[\d +]+$/;
-        return phoneRegex.test(telefono) && digitsOnly.length >= 9;
-    };
-
-
+        const digitsOnly = telefono.replace(/[^\d]/g, '') // eliminamos todo lo que no sea número
+        const phoneRegex = /^[\d +]+$/
+        return phoneRegex.test(telefono) && digitsOnly.length >= 9
+    }
 
     const saveHistoricalChanges = async (companyId: string, cambios: Record<string, any>) => {
         try {
@@ -208,20 +206,16 @@ export const FormSuscribe = () => {
                     historial: [entradaHistorial]
                 })
             }
-
-            console.log("Historial actualizado correctamente.")
         } catch (error) {
-            console.error("Error guardando en historial:", error)
+            toast.error(`Error guardando en historial: ${error}`)
         }
-
-
     }
     const handleDarDeAltaEmpresa = () => {
-        const esValido = validateCompany(company);
+        const esValido = validateCompany(company)
 
         if (!esValido) {
-            toast.error("Revisa los campos obligatorios del formulario.");
-            return;
+            toast.error("Revisa los campos obligatorios del formulario.")
+            return
         }
         const confirmado = window.confirm("¿Estás seguro de que quieres dar de Alta la empresa?")
         if (confirmado) {
@@ -230,66 +224,61 @@ export const FormSuscribe = () => {
     }
     const validateCompany = (empresa: Empresa): boolean => {
         if (!empresa.razon_social || empresa.razon_social.trim().length < 3) {
-            toast.error("La razón social debe tener al menos 3 caracteres.");
-            return false;
+            toast.error("La razón social debe tener al menos 3 caracteres.")
+            return false
         }
 
         if (!Array.isArray(empresa.email) || empresa.email.length === 0) {
-            toast.error("Debe incluir al menos un correo electrónico.");
-            return false;
+            toast.error("Debe incluir al menos un correo electrónico.")
+            return false
         }
 
         if (!empresa.fecha_inicio || empresa.fecha_inicio.trim() === "") {
-            toast.error("La fecha de inicio no puede estar vacía.");
-            return false;
+            toast.error("La fecha de inicio no puede estar vacía.")
+            return false
         }
 
         if (!empresa.contacto || empresa.contacto.trim().length < 3) {
-            toast.error("El nombre del contacto debe tener al menos 3 caracteres.");
-            return false;
+            toast.error("El nombre del contacto debe tener al menos 3 caracteres.")
+            return false
         }
 
         if (!Array.isArray(empresa.telefono_contacto) || empresa.telefono_contacto.length === 0) {
-            toast.error("Debe incluir al menos un teléfono de contacto.");
-            return false;
+            toast.error("Debe incluir al menos un teléfono de contacto.")
+            return false
         }
 
         if (!empresa.titular || empresa.titular.trim().length < 3) {
-            toast.error("El titular debe tener al menos 3 caracteres.");
-            return false;
+            toast.error("El titular debe tener al menos 3 caracteres.")
+            return false
         }
 
-        const telefonoValido = /^[\d +]+$/.test(empresa.telefono_titular.trim());
+        const telefonoValido = /^[\d +]+$/.test(empresa.telefono_titular.trim())
         if (!telefonoValido) {
-            toast.error("El teléfono del titular solo puede contener números, espacios o '+'.");
-            return false;
+            toast.error("El teléfono del titular solo puede contener números, espacios o '+'.")
+            return false
         }
 
-        return true;
-    };
-
-
+        return true
+    }
     const darDeAltaEmpresa = async () => {
         try {
-            const docRef = await addDoc(collection(db, "EmpresaList"), company);
-            const newId = docRef.id;
+            const docRef = await addDoc(collection(db, "EmpresaList"), company)
+            const newId = docRef.id
 
-            await updateDoc(docRef, { id: newId });
+            await updateDoc(docRef, { id: newId })
 
-            company.id = newId;
+            company.id = newId
 
-            toast.success("Empresa dada de alta correctamente.");
-            navigate("/home");
+            toast.success("Empresa dada de alta correctamente.")
+            navigate("/home")
         } catch (error) {
-            console.error("Error al dar de alta la empresa:", error);
-            toast.error("Error al dar de alta la empresa.");
+            toast.error("Error al dar de alta la empresa.")
         }
-    };
+    }
 
 
     return (<>
-
-        {console.log(company)}
 
         <styles.GlobalDateTimeStyles />
         {showPopup && (
@@ -303,10 +292,6 @@ export const FormSuscribe = () => {
                         <FaArrowLeft />
                         Inicio
                     </styles.BackButtonStyled>
-                    <styles.CompanyName>
-                        {company?.razon_social || ''}
-                    </styles.CompanyName>
-                    {/* PONER BOTON O SIMILAR PARA SABER "ACTIVA, INACTIVA O PENDIENTE DE PAGO" */}
                 </styles.EntryVertical>
 
                 <styles.EntryVertical>

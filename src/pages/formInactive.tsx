@@ -14,6 +14,7 @@ import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion, deleteDoc } fro
 import { useAuth } from "../common/AuthContext"
 import { toast } from 'react-toastify'
 
+
 export const FormInactive = () => {
 
     const navigate = useNavigate()
@@ -152,7 +153,6 @@ export const FormInactive = () => {
             toast.success("Motivo de baja guardado en el historial.")
         } catch (error) {
             toast.error("Error guardando motivo de baja.")
-            console.error(error)
         }
         setShowPopup(false)
     }
@@ -192,11 +192,8 @@ export const FormInactive = () => {
         }, {} as Record<string, any>)
 
         if (Object.keys(cambios).length > 0) {
-            console.log("Cambios detectados:", cambios)
             saveHistoricalChanges(originalCompany.id, cambios)
             await updateCompany(originalCompany.id, cambios)
-        } else {
-            console.log("No se detectaron cambios.")
         }
 
         setIsEditing(false)
@@ -225,10 +222,8 @@ export const FormInactive = () => {
                     historial: [entradaHistorial]
                 })
             }
-
-            console.log("Historial actualizado correctamente.")
         } catch (error) {
-            console.error("Error guardando en historial:", error)
+            toast.error(`Error guardando en historial: ${error}`)
         }
 
 
@@ -241,9 +236,8 @@ export const FormInactive = () => {
             )
 
             await updateDoc(companyRef, updatedFields)
-            console.log("Empresa actualizada con éxito")
         } catch (error) {
-            console.error("Error actualizando empresa:", error)
+            toast.error(`Error actualizando empresa: ${error}`)
         }
     }
     const downloadHistoric = async (companyId: string) => {
@@ -344,14 +338,12 @@ export const FormInactive = () => {
         }, {} as Record<string, { antes: any; despues: any }>)
 
         if (Object.keys(cambios).length > 0) {
-            console.log("Cambios procesados por pago:", cambios)
             await saveHistoricalChanges(originalCompany.id, cambios)
             await updateCompany(originalCompany.id, cambios)
             setCompany(empresaActualizada)
             setOriginalCompany(empresaActualizada)
             toast.success("Pago procesado y fechas actualizadas con éxito.")
         } else {
-            console.log("No se detectaron cambios al procesar pago.")
             toast.info("No se detectaron cambios al procesar el pago.")
         }
     }
@@ -388,7 +380,6 @@ export const FormInactive = () => {
 
             toast.success("Empresa dada de baja correctamente.")
         } catch (error) {
-            console.error("Error al dar de baja la empresa:", error)
             toast.error("Error al dar de baja la empresa.")
         }
     }
@@ -410,7 +401,6 @@ export const FormInactive = () => {
                     <styles.CompanyName>
                         {company?.razon_social || ''}
                     </styles.CompanyName>
-                    {/* PONER BOTON O SIMILAR PARA SABER "ACTIVA, INACTIVA O PENDIENTE DE PAGO" */}
                 </styles.EntryVertical>
 
                 <styles.EntryVertical>
