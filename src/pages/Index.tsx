@@ -144,7 +144,7 @@ export default function Index() {
   };
 
   return (
-    <div className="flex flex-col w-full px-20">
+    <div className="flex flex-col w-full">
       {/* Barra de búsqueda y botones */}
       <div className="flex items-center justify-between w-full">
         <input
