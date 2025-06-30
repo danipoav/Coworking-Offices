@@ -30,7 +30,7 @@ export default function TablaOficinas({ datos, paginaActual, setPaginaActual, es
     // const filasActuales = datos.slice(inicio, fin);
 
     return (
-        <div className="w-full border border-gray-300 rounded-md overflow-hidden shadow-sm">
+        <div className="w-full border border-gray-300 rounded-md overflow-hidden shadow-sm mb-10">
             <table className="table-fixed w-full border-collapse">
                 <thead className="bg-gray-200 text-gray-700 text-sm font-semibold">
                     <tr>

@@ -15,10 +15,71 @@ export default function Index() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { empresas, loading, error } = useAppSelector((state) => state.empresas);
+  const [mesInicialSeteado, setMesInicialSeteado] = useState(false);
+  
+  const ordenModalidad = {
+    "My business":0,
+    "Anual": 1,
+    "Trimestral": 2,
+    "Semestral": 3
+  };
 
   useEffect(() => {
     dispatch(fetchEmpresas());
   }, [dispatch]);
+
+  // Función para parsear fechas en formato europeo 
+  const parseFechaEuropea = (fechaStr: string): Date => {
+    const [dia, mes, año] = fechaStr.split("-").map(Number);
+    return new Date(año, mes - 1, dia);
+  };
+
+  // Principalmente filtro a las que no estén pendientes de pago
+  const noPendingCompanies = empresas.filter((item) => !item.pendiente_pago);
+
+  // Filtra empresas con fechas validas
+  const empresasValidas = noPendingCompanies.filter((item) => {
+    const fecha = parseFechaEuropea(item.fecha_inicio);
+    return !isNaN(fecha.getTime());
+  });
+
+  // Genera lista de meses disponibles a partir de las fechas
+  const availableMonths = Array.from(
+    new Set(
+      empresasValidas.map((item) => {
+        const date = parseFechaEuropea(item.fecha_inicio);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}`;
+      })
+    )
+  ).sort().reverse();
+
+  // Cuando cambian empresas o availableMonths, establecemos el índice en el mes más cercano o actual
+  useEffect(() => {
+    if (availableMonths.length === 0) return;
+
+    if (mesInicialSeteado) return
+    const now = new Date();
+    const currentYearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    // Buscamos el índice del mes actual en availableMonths o el mes más cercano anterior
+    let closestIndex = availableMonths.findIndex(mes => mes === currentYearMonth);
+
+    if (closestIndex === -1) {
+      // Si no está el mes actual, buscamos el primero que sea menor al mes actual
+      closestIndex = availableMonths.findIndex(mes => mes < currentYearMonth);
+    }
+    if (closestIndex === -1) {
+      // Si no encontramos nada, dejamos en 0 
+      closestIndex = 0;
+    }
+
+    setIndiceMes(closestIndex);
+    setPaginaActual(0);
+    setMesInicialSeteado(true); // marcamos que ya seteamos
+
+  }, [availableMonths]);
 
   if (loading) {
     return (
@@ -43,34 +104,17 @@ export default function Index() {
     </div>
   </div>;
 
-  // Función para parsear fechas en formato europeo (dd-mm-yyyy)
-  const parseFechaEuropea = (fechaStr: string): Date => {
-    const [dia, mes, año] = fechaStr.split("-").map(Number);
-    return new Date(año, mes - 1, dia);
-  };
-  //Principalmente filtro a las que no esten pendientes de pago
-  const noPendingCompanies = empresas.filter((item) => !item.pendiente_pago)
+  const safeIndiceMes = Math.min(Math.max(indiceMes, 0), availableMonths.length - 1);
+  const selectedMonthKey = availableMonths[safeIndiceMes];
 
-  // Filtra empresas con fechas válidas
-  const empresasValidas = noPendingCompanies.filter((item) => {
-    const fecha = parseFechaEuropea(item.fecha_inicio);
-    return !isNaN(fecha.getTime());
-  });
+  if (!selectedMonthKey) {
+    return <div>No hay meses disponibles</div>;
+  }
 
-  // Genera lista de meses disponibles a partir de las fechas
-  const availableMonths = Array.from(
-    new Set(
-      empresasValidas.map((item) => {
-        const date = parseFechaEuropea(item.fecha_inicio);
-        const year = date.getFullYear();
-        const month = String(date.getMonth());
-        return `${year}-${month}`;
-      })
-    )
-  ).sort().reverse();
+  const [yearStr, monthStr] = selectedMonthKey.split("-");
+  const year = Number(yearStr);
+  const month = Number(monthStr) - 1;
 
-  const selectedMonthKey = availableMonths[indiceMes];
-  const [year, month] = selectedMonthKey.split("-").map(Number);
   const currentMonthDate = new Date(year, month);
 
   const monthLabel = currentMonthDate.toLocaleDateString("es-ES", {
@@ -78,6 +122,7 @@ export default function Index() {
     month: "long"
   });
 
+  // Filtramos datos para el mes seleccionado
   const datosFiltrados = noPendingCompanies.filter((item) => {
     const inicio = parseFechaEuropea(item.fecha_inicio);
     return (
@@ -86,19 +131,23 @@ export default function Index() {
     );
   });
 
-  const datosFiltradosOrdenados = datosFiltrados.sort((a, b) => {
-    const fechaA = new Date(a.fecha_inicio).getTime();
-    const fechaB = new Date(b.fecha_inicio).getTime();
-    return fechaA - fechaB;
-  });
+  // Ordenamos por fecha
+const datosFiltradosOrdenados = datosFiltrados.sort((a, b) => {
+  const ordenA = ordenModalidad[a.modalidad] ?? 99;  // por si falta el campo o es distinto
+  const ordenB = ordenModalidad[b.modalidad] ?? 99;
+  return ordenA - ordenB;
+});
 
+  // Si hay búsqueda, filtramos también por texto y ordenamos
   const datosFinales = busqueda.trim()
-    ? noPendingCompanies.filter((empresa) => empresa.razon_social.toLowerCase().includes(busqueda.toLowerCase())
+    ? noPendingCompanies.filter((empresa) =>
+      empresa.razon_social.toLowerCase().includes(busqueda.toLowerCase())
     ).sort((a, b) => {
       const fechaA = parseFechaEuropea(a.fecha_inicio).getTime();
       const fechaB = parseFechaEuropea(b.fecha_inicio).getTime();
       return fechaA - fechaB;
-    }) : datosFiltradosOrdenados
+    })
+    : datosFiltradosOrdenados;
 
   const handlePreviousMonth = () => {
     setIndiceMes((prev) => Math.min(prev + 1, availableMonths.length - 1));
@@ -111,7 +160,7 @@ export default function Index() {
   };
 
   return (
-    <div className="flex flex-col w-full px-20">
+    <div className="flex flex-col w-full">
       {/* Barra de búsqueda y botones */}
       <div className="flex items-center justify-between w-full">
         <input
@@ -121,9 +170,9 @@ export default function Index() {
           value={busqueda}
           onChange={(e) => {
             setBusqueda(e.target.value);
-            setPaginaActual(0)
-          }
-          } />
+            setPaginaActual(0);
+          }}
+        />
         <button
           onClick={() => navigate('/pending')}
           className="cursor-pointer bg-gradient-to-r from-gray-600 to-gray-800 text-white font-semibold border-none rounded-lg py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
