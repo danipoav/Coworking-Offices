@@ -269,7 +269,7 @@ export const FormSuscribe = () => {
             await updateDoc(docRef, { id: newId })
 
             company.id = newId
-
+            await saveHistoricalChanges(newId, { cambios: "Empresa creada" })
             toast.success("Empresa dada de alta correctamente.")
             navigate("/home")
         } catch (error) {
