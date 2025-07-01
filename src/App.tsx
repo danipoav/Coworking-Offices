@@ -12,6 +12,7 @@ import { PrivateRoute } from "./components/PrivateRoute";
 import { AuthProvider } from "./common/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FormPending } from "./pages/formPending";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               }
             />
             <Route path="/formActive" element={<FormActive />} />
+            <Route path="/formPending" element={<FormPending />} />
             <Route path="/formInactive" element={<FormInactive />} />
             <Route path="/formSuscribe" element={<FormSuscribe />} />
             <Route
