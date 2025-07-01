@@ -411,7 +411,6 @@ export const FormInactive = () => {
             }
 
             const datosEmpresa = bajaSnap.data();
-
             // 2. Crear el documento en EmpresaList con el mismo ID
             const empresaRef = doc(db, "EmpresaList", company.id);
             await setDoc(empresaRef, {
@@ -421,6 +420,8 @@ export const FormInactive = () => {
 
             // 3. Borrar de BajasList
             await deleteDoc(bajaRef);
+            // 4. Salvar el historial
+            await saveHistoricalChanges(company.id, { cambios: "Empresa dada de alta desde bajas" })
 
             toast.success("Empresa dada de alta correctamente.");
             navigate("/home");
