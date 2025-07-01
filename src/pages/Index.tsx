@@ -7,6 +7,10 @@ import { MdOutlinePendingActions } from "react-icons/md";
 import TablaOficinas from '../components/TablaOficinas';
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchEmpresas } from '../store/empresasSlice';
+import { Empresa } from '../interfaces/Empresa';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
+import { toast } from 'react-toastify';
 
 export default function Index() {
   const [indiceMes, setIndiceMes] = useState(0);
@@ -16,9 +20,9 @@ export default function Index() {
   const dispatch = useAppDispatch();
   const { empresas, loading, error } = useAppSelector((state) => state.empresas);
   const [mesInicialSeteado, setMesInicialSeteado] = useState(false);
-  
+
   const ordenModalidad = {
-    "My business":0,
+    "My business": 0,
     "Anual": 1,
     "Trimestral": 2,
     "Semestral": 3
@@ -27,6 +31,12 @@ export default function Index() {
   useEffect(() => {
     dispatch(fetchEmpresas());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!loading && empresas.length > 0) {
+      actualizarPendientesDePago(empresas);
+    }
+  }, [loading, empresas]);
 
   // Función para parsear fechas en formato europeo 
   const parseFechaEuropea = (fechaStr: string): Date => {
@@ -39,7 +49,7 @@ export default function Index() {
 
   // Filtra empresas con fechas validas
   const empresasValidas = noPendingCompanies.filter((item) => {
-    const fecha = parseFechaEuropea(item.fecha_inicio);
+    const fecha = parseFechaEuropea(item.fecha_renovacion);
     return !isNaN(fecha.getTime());
   });
 
@@ -47,7 +57,7 @@ export default function Index() {
   const availableMonths = Array.from(
     new Set(
       empresasValidas.map((item) => {
-        const date = parseFechaEuropea(item.fecha_inicio);
+        const date = parseFechaEuropea(item.fecha_renovacion);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         return `${year}-${month}`;
@@ -115,7 +125,7 @@ export default function Index() {
 
   // Filtramos datos para el mes seleccionado
   const datosFiltrados = noPendingCompanies.filter((item) => {
-    const inicio = parseFechaEuropea(item.fecha_inicio);
+    const inicio = parseFechaEuropea(item.fecha_renovacion);
     return (
       inicio.getMonth() === currentMonthDate.getMonth() &&
       inicio.getFullYear() === currentMonthDate.getFullYear()
@@ -123,19 +133,19 @@ export default function Index() {
   });
 
   // Ordenamos por fecha
-const datosFiltradosOrdenados = datosFiltrados.sort((a, b) => {
-  const ordenA = ordenModalidad[a.modalidad] ?? 99;  // por si falta el campo o es distinto
-  const ordenB = ordenModalidad[b.modalidad] ?? 99;
-  return ordenA - ordenB;
-});
+  const datosFiltradosOrdenados = datosFiltrados.sort((a, b) => {
+    const ordenA = ordenModalidad[a.modalidad] ?? 99;  // por si falta el campo o es distinto
+    const ordenB = ordenModalidad[b.modalidad] ?? 99;
+    return ordenA - ordenB;
+  });
 
   // Si hay búsqueda, filtramos también por texto y ordenamos
   const datosFinales = busqueda.trim()
     ? noPendingCompanies.filter((empresa) =>
       empresa.razon_social.toLowerCase().includes(busqueda.toLowerCase())
     ).sort((a, b) => {
-      const fechaA = parseFechaEuropea(a.fecha_inicio).getTime();
-      const fechaB = parseFechaEuropea(b.fecha_inicio).getTime();
+      const fechaA = parseFechaEuropea(a.fecha_renovacion).getTime();
+      const fechaB = parseFechaEuropea(b.fecha_renovacion).getTime();
       return fechaA - fechaB;
     })
     : datosFiltradosOrdenados;
@@ -148,6 +158,25 @@ const datosFiltradosOrdenados = datosFiltrados.sort((a, b) => {
   const handleNextMonth = () => {
     setIndiceMes((prev) => Math.max(prev - 1, 0));
     setPaginaActual(0);
+  };
+
+
+  const actualizarPendientesDePago = async (empresas: Empresa[]) => {
+    const hoy = new Date();
+
+    for (const empresa of empresas) {
+      const fechaRenovacion = parseFechaEuropea(empresa.fecha_renovacion);
+
+      if (!isNaN(fechaRenovacion.getTime()) && fechaRenovacion < hoy && !empresa.pendiente_pago) {
+        try {
+          const ref = doc(db, "EmpresaList", empresa.id);
+          await updateDoc(ref, { pendiente_pago: true });
+          toast.success('Empresas pasaron a pendiente de pago por favor refresque la pagina')
+        } catch (err) {
+          console.error(`Error actualizando empresa ${empresa.id}`, err);
+        }
+      }
+    }
   };
 
   return (
