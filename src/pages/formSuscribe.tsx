@@ -420,7 +420,7 @@ export const FormSuscribe = () => {
                 </styles.EntryVertical>
             </styles.Column>
 
-            <styles.Column padding="9em 1em 1em">
+            <styles.Column padding="6em 1em 1em">
                 <styles.EntryVertical>
                     <styles.Title>Nombre del titular*</styles.Title>
                     <styles.InputText

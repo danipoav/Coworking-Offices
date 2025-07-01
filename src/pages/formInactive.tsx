@@ -230,7 +230,7 @@ export const FormInactive = () => {
     }
     const updateCompany = async (companyId: string, cambios: Record<string, any>) => {
         try {
-            const companyRef = doc(db, "EmpresaList", companyId)
+            const companyRef = doc(db, "BajasList", companyId)
             const updatedFields = Object.fromEntries(
                 Object.entries(cambios).map(([key, change]) => [key, change.despues])
             )
