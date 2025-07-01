@@ -3,6 +3,7 @@ import { FiLogOut } from "react-icons/fi";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { useAuth } from "../common/AuthContext";
+import { toast } from "react-toastify";
 
 export default function MainLayout() {
   const { user } = useAuth();
@@ -13,7 +14,7 @@ export default function MainLayout() {
       await signOut(auth);
       navigate("/login");
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+      toast.error("Error al cerrar sesión:" + error);
     }
   };
 

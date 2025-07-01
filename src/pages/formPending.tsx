@@ -15,7 +15,7 @@ import { useAuth } from "../common/AuthContext"
 import { toast } from 'react-toastify'
 
 
-export const FormActive = () => {
+export const FormPending = () => {
 
     const navigate = useNavigate()
     const empresaSeleccionada = useSelector((state: RootState) => state.empresas.empresaSeleccionada)
@@ -661,8 +661,16 @@ export const FormActive = () => {
                 </styles.EntryHorizontal>
                 <styles.EntryHorizontal>
                     <Button
+                        color={color.blue}
+                        width="11rem"
+                        padding="0.5em 0"
+                        onClick={handleProcesarPago}>
+                        <styles.IconProcessPay />
+                        Procesar pago
+                    </Button>
+                    <Button
                         color={color.green}
-                        margin='0 0 0 0rem'
+                        margin='0 0 0 1.5rem'
                         width="11rem"
                         padding="0.5em 0"
                         onClick={() => downloadHistoric(company.id)} >
