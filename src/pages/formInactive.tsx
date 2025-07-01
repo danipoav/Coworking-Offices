@@ -236,6 +236,7 @@ export const FormInactive = () => {
             )
 
             await updateDoc(companyRef, updatedFields)
+            toast.success(`Empresa Acutalicada`)
         } catch (error) {
             toast.error(`Error actualizando empresa: ${error}`)
         }
@@ -348,41 +349,88 @@ export const FormInactive = () => {
         }
     }
     const handleDarDeAltaEmpresa = () => {
-        const confirmado = window.confirm("¿Estás seguro de que quieres dar de baja la empresa?")
+        const esValido = validateCompany(company)
+
+        if (!esValido) {
+            toast.error("Revisa los campos obligatorios del formulario.")
+            return
+        }
+        const confirmado = window.confirm("¿Estás seguro de que quieres dar de Alta la empresa?")
         if (confirmado) {
             darDeAltaEmpresa()
         }
     }
-    const darDeAltaEmpresa = async () => {
-        if (!company.id) {
-            toast.error("Empresa no válida o sin ID.")
-            return
+    const validateCompany = (empresa: Empresa): boolean => {
+        if (!empresa.razon_social || empresa.razon_social.trim().length < 3) {
+            toast.error("La razón social debe tener al menos 3 caracteres.")
+            return false
         }
 
-        try {
-            const empresaRef = doc(db, "EmpresaList", company.id)
-            const empresaSnap = await getDoc(empresaRef)
+        if (!Array.isArray(empresa.email) || empresa.email.length === 0) {
+            toast.error("Debe incluir al menos un correo electrónico.")
+            return false
+        }
 
-            if (!empresaSnap.exists()) {
-                toast.error("No se encontró la empresa en la base de datos.")
-                return
+        if (!empresa.fecha_inicio || empresa.fecha_inicio.trim() === "") {
+            toast.error("La fecha de inicio no puede estar vacía.")
+            return false
+        }
+
+        if (!empresa.contacto || empresa.contacto.trim().length < 3) {
+            toast.error("El nombre del contacto debe tener al menos 3 caracteres.")
+            return false
+        }
+
+        if (!Array.isArray(empresa.telefono_contacto) || empresa.telefono_contacto.length === 0) {
+            toast.error("Debe incluir al menos un teléfono de contacto.")
+            return false
+        }
+
+        if (!empresa.titular || empresa.titular.trim().length < 3) {
+            toast.error("El titular debe tener al menos 3 caracteres.")
+            return false
+        }
+
+        const telefonoValido = /^[\d +]+$/.test(empresa.telefono_titular.trim())
+        if (!telefonoValido) {
+            toast.error("El teléfono del titular solo puede contener números, espacios o '+'.")
+            return false
+        }
+
+        return true
+    }
+    const darDeAltaEmpresa = async () => {
+        try {
+            // 1. Obtener la referencia y datos de BajasList
+            const bajaRef = doc(db, "BajasList", company.id);
+            const bajaSnap = await getDoc(bajaRef);
+
+            if (!bajaSnap.exists()) {
+                toast.error("No se encontró la empresa en BajasList.");
+                return;
             }
 
-            const datosEmpresa = empresaSnap.data()
-
-            const bajaRef = doc(db, "BajasList", company.id)
-            await setDoc(bajaRef, {
+            const datosEmpresa = bajaSnap.data();
+            // 2. Crear el documento en EmpresaList con el mismo ID
+            const empresaRef = doc(db, "EmpresaList", company.id);
+            await setDoc(empresaRef, {
                 ...datosEmpresa,
-                fecha_baja: new Date().toISOString()
-            })
+                id: company.id
+            });
 
-            await deleteDoc(empresaRef)
+            // 3. Borrar de BajasList
+            await deleteDoc(bajaRef);
+            // 4. Salvar el historial
+            await saveHistoricalChanges(company.id, { cambios: "Empresa dada de alta desde bajas" })
 
-            toast.success("Empresa dada de baja correctamente.")
+            toast.success("Empresa dada de alta correctamente.");
+            navigate("/home");
+
         } catch (error) {
-            toast.error("Error al dar de baja la empresa.")
+            console.error("Error al dar de alta la empresa:", error);
+            toast.error("Error al dar de alta la empresa.");
         }
-    }
+    };
 
     return (<>
 
@@ -629,16 +677,8 @@ export const FormInactive = () => {
                 </styles.EntryHorizontal>
                 <styles.EntryHorizontal>
                     <Button
-                        color={color.blue}
-                        width="11rem"
-                        padding="0.5em 0"
-                        onClick={handleProcesarPago}>
-                        <styles.IconProcessPay />
-                        Procesar pago
-                    </Button>
-                    <Button
                         color={color.green}
-                        margin='0 0 0 1.5rem'
+                        margin='0 0 0 0rem'
                         width="11rem"
                         padding="0.5em 0"
                         onClick={() => downloadHistoric(company.id)} >

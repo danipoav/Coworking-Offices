@@ -218,35 +218,55 @@ export const FormActive = () => {
         setIsEditing(false)
     }
     const saveHistoricalChanges = async (companyId: string, cambios: Record<string, any>) => {
-        try {
-            const historicoRef = doc(db, "HistoricoList", companyId)
-            const historicoSnap = await getDoc(historicoRef)
+        // Función para reemplazar undefined por null recursivamente
+        function replaceUndefinedWithNull(obj: any): any {
+            if (Array.isArray(obj)) {
+                return obj.map(replaceUndefinedWithNull);
+            } else if (typeof obj === 'object' && obj !== null) {
+                return Object.fromEntries(
+                    Object.entries(obj).map(([k, v]) => [k, replaceUndefinedWithNull(v === undefined ? null : v)])
+                );
+            }
+            return obj;
+        }
 
-            const fecha = new Date()
+        try {
+            const historicoRef = doc(db, "HistoricoList", companyId);
+            const historicoSnap = await getDoc(historicoRef);
+
+            const fecha = new Date();
+
+            // Limpiar cambios
+            const cambiosLimpios = replaceUndefinedWithNull(cambios);
+
             const entradaHistorial = {
                 fecha: fecha.toISOString(),
                 usuario: user?.email || "desconocido",
-                cambios: cambios,
-            }
+                cambios: cambiosLimpios,
+            };
 
             if (historicoSnap.exists()) {
-                // Ya existe, actualizamos agregando al historial
+                // Actualizar
                 await updateDoc(historicoRef, {
-                    historial: arrayUnion(entradaHistorial)
-                })
+                    historial: arrayUnion(entradaHistorial),
+                });
             } else {
-                // No existe, lo creamos
+                // Crear documento nuevo
                 await setDoc(historicoRef, {
                     empresaId: companyId,
-                    historial: [entradaHistorial]
-                })
+                    historial: [entradaHistorial],
+                });
             }
+
+            toast.success("cambios guardados con éxito");
         } catch (error) {
-            toast.error(`Error guardando en historial: ${error}`)
+            toast.error(`Error guardando en historial: ${error}`);
+            console.log(error);
         }
+    };
 
 
-    }
+
     const updateCompany = async (companyId: string, cambios: Record<string, any>) => {
         try {
             const companyRef = doc(db, "EmpresaList", companyId)
@@ -660,16 +680,8 @@ export const FormActive = () => {
                 </styles.EntryHorizontal>
                 <styles.EntryHorizontal>
                     <Button
-                        color={color.blue}
-                        width="11rem"
-                        padding="0.5em 0"
-                        onClick={handleProcesarPago}>
-                        <styles.IconProcessPay />
-                        Procesar pago
-                    </Button>
-                    <Button
                         color={color.green}
-                        margin='0 0 0 1.5rem'
+                        margin='0 0 0 0rem'
                         width="11rem"
                         padding="0.5em 0"
                         onClick={() => downloadHistoric(company.id)} >
