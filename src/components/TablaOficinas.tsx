@@ -6,6 +6,7 @@ import { setEmpresaSeleccionada } from "../store/empresasSlice"
 import { useNavigate } from 'react-router-dom'
 import { FaRegCopy } from "react-icons/fa6";
 import { toast } from "react-toastify"
+import { useEffect } from "react"
 
 
 const FILAS_POR_PAGINA = 15
@@ -15,13 +16,19 @@ export default function TablaOficinas({ datos, paginaActual, setPaginaActual, es
     const totalPaginas = Math.ceil(datos.length / FILAS_POR_PAGINA)
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
-
+    const fechaActual = new Date()
+    console.log(fechaActual)
     const handleSeleccion = (empresa: Empresa) => {
         dispatch(setEmpresaSeleccionada(empresa))
         if (rutaDetalle) {
             navigate(`/${rutaDetalle}`)
         }
     }
+
+    const parseFechaEuropea = (fechaStr: string): Date => {
+        const [dia, mes, año] = fechaStr.split("-").map(Number);
+        return new Date(año, mes - 1, dia);
+    };
     // const handlePageChange = (event: { selected: number }) => {
     //     setPaginaActual(event.selected)
     // }
@@ -57,7 +64,7 @@ export default function TablaOficinas({ datos, paginaActual, setPaginaActual, es
                                 <div className="flex items-center gap-2">
                                     {/* Semáforo */}
                                     <span className={`inline-block w-3.5 h-3.5 rounded-full ${estado === 'activo'
-                                        ? empresa.pendiente_pago ? 'bg-orange-400' : 'bg-green-400'
+                                        ? empresa.pendiente_pago ? 'bg-gray-400' : parseFechaEuropea(empresa.fecha_renovacion) > fechaActual && empresa.fecha_renovacion ? 'bg-green-400' : 'bg-red-500'
                                         : estado === 'inactivo'
                                             ? empresa.renovacion ? 'bg-green-400' : 'bg-red-500'
                                             : 'bg-gray-400'

@@ -18,7 +18,7 @@ export default function Index() {
   const [busqueda, setBusqueda] = useState('');
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { empresas, loading, error } = useAppSelector((state) => state.empresas);
+  const { empresas, loading, error, inactivas } = useAppSelector((state) => state.empresas);
   const [mesInicialSeteado, setMesInicialSeteado] = useState(false);
 
   const ordenModalidad = {
@@ -27,6 +27,7 @@ export default function Index() {
     "Trimestral": 2,
     "Semestral": 3
   };
+  console.log(empresas.map(empresa => empresa.fecha_renovacion))
 
   useEffect(() => {
     dispatch(fetchEmpresas());
@@ -43,6 +44,8 @@ export default function Index() {
     const [dia, mes, año] = fechaStr.split("-").map(Number);
     return new Date(año, mes - 1, dia);
   };
+
+  const todasLasEmpresas = [...empresas, ...inactivas]
 
   // Principalmente filtro a las que no estén pendientes de pago
   const noPendingCompanies = empresas.filter((item) => !item.pendiente_pago);
@@ -150,7 +153,7 @@ export default function Index() {
 
   // Si hay búsqueda, filtramos también por texto y ordenamos
   const datosFinales = busqueda.trim()
-    ? noPendingCompanies.filter((empresa) =>
+    ? todasLasEmpresas.filter((empresa) =>
       empresa.razon_social.toLowerCase().includes(busqueda.toLowerCase())
     ).sort((a, b) => {
       const fechaA = parseFechaEuropea(a.fecha_renovacion).getTime();
