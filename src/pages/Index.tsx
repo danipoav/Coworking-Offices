@@ -18,7 +18,7 @@ export default function Index() {
   const [busqueda, setBusqueda] = useState('');
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { empresas, loading, error } = useAppSelector((state) => state.empresas);
+  const { empresas, loading, error, inactivas } = useAppSelector((state) => state.empresas);
   const [mesInicialSeteado, setMesInicialSeteado] = useState(false);
 
   const ordenModalidad = {
@@ -27,6 +27,7 @@ export default function Index() {
     "Trimestral": 2,
     "Semestral": 3
   };
+  console.log(empresas.map(empresa => empresa.fecha_renovacion))
 
   useEffect(() => {
     dispatch(fetchEmpresas());
@@ -43,6 +44,8 @@ export default function Index() {
     const [dia, mes, año] = fechaStr.split("-").map(Number);
     return new Date(año, mes - 1, dia);
   };
+
+  const todasLasEmpresas = [...empresas, ...inactivas]
 
   // Principalmente filtro a las que no estén pendientes de pago
   const noPendingCompanies = empresas.filter((item) => !item.pendiente_pago);
@@ -102,8 +105,17 @@ export default function Index() {
     );
   }
 
-  if (error) return <div>{error}</div>;
-  if (empresas.length === 0) return <div>No se encontraron empresas</div>;
+  if (error) return <div className="flex items-center justify-center h-[750px]">
+    <div className="text-center">
+      <p className="text-red-600 text-lg font-medium">{error}</p>
+    </div>
+  </div>;
+
+  if (empresas.length === 0) return <div className="flex items-center justify-center h-[750px]">
+    <div className="text-center">
+      <p className="text-gray-600 text-lg font-medium">No se encontraron empresas</p>
+    </div>
+  </div>;
 
   const safeIndiceMes = Math.min(Math.max(indiceMes, 0), availableMonths.length - 1);
   const selectedMonthKey = availableMonths[safeIndiceMes];
@@ -141,7 +153,7 @@ export default function Index() {
 
   // Si hay búsqueda, filtramos también por texto y ordenamos
   const datosFinales = busqueda.trim()
-    ? noPendingCompanies.filter((empresa) =>
+    ? todasLasEmpresas.filter((empresa) =>
       empresa.razon_social.toLowerCase().includes(busqueda.toLowerCase())
     ).sort((a, b) => {
       const fechaA = parseFechaEuropea(a.fecha_renovacion).getTime();
