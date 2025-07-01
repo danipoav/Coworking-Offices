@@ -22,7 +22,7 @@ export default function PendientesPago() {
   };
 
   const ordenModalidad = {
-    "My business":0,
+    "My business": 0,
     "Anual": 1,
     "Trimestral": 2,
     "Semestral": 3
@@ -113,7 +113,7 @@ export default function PendientesPago() {
         </select>
       </div>
       <div className="pt-5">
-        <TablaOficinas datos={datosOrdenados} paginaActual={paginaActual} setPaginaActual={setPaginaActual} estado="pendiente" />
+        <TablaOficinas datos={datosOrdenados} paginaActual={paginaActual} setPaginaActual={setPaginaActual} estado="pendiente" rutaDetalle='formPending' />
       </div>
     </div>
   );

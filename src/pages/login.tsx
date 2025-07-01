@@ -14,8 +14,7 @@ function Login() {
 
         try {
             const userCred = await signInWithEmailAndPassword(auth, email, password);
-            console.log("Sesión iniciada:", userCred.user.email);
-            toast.success('Bienvenido')
+            toast.success('Bienvenido' + userCred.user.email)
             navigate("/home");
         } catch (error: unknown) {
             if (error instanceof Error) {
