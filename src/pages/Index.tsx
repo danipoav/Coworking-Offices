@@ -31,7 +31,7 @@ export default function Index() {
 
   useEffect(() => {
     dispatch(fetchEmpresas());
-    dispatch(fetchEmpresasInactivas());
+    dispatch(fetchEmpresasInactivas())
   }, [dispatch]);
 
   useEffect(() => {
@@ -153,14 +153,17 @@ export default function Index() {
   });
 
   // Si hay búsqueda, filtramos también por texto y ordenamos
-  const datosFinales = busqueda.trim()
-    ? noPendingCompanies.filter((empresa) =>
-      empresa.razon_social.toLowerCase().includes(busqueda.toLowerCase())
-    ).sort((a, b) => {
-      const fechaA = parseFechaEuropea(a.fecha_renovacion).getTime();
-      const fechaB = parseFechaEuropea(b.fecha_renovacion).getTime();
-      return fechaA - fechaB;
-    })
+  const datosBusqueda = busqueda.trim().toLowerCase();
+  const datosFinales = datosBusqueda
+    ? [...empresas, ...(inactivas || [])]
+      .filter((empresa) =>
+        empresa.razon_social.toLowerCase().includes(datosBusqueda)
+      )
+      .sort((a, b) => {
+        const fechaA = parseFechaEuropea(a.fecha_renovacion).getTime();
+        const fechaB = parseFechaEuropea(b.fecha_renovacion).getTime();
+        return fechaA - fechaB;
+      })
     : datosFiltradosOrdenados;
 
   const handlePreviousMonth = () => {
