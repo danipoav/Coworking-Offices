@@ -6,9 +6,9 @@ import { TbTimeDurationOff } from "react-icons/tb";
 import { MdOutlinePendingActions } from "react-icons/md";
 import TablaOficinas from '../components/TablaOficinas';
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchEmpresas } from '../store/empresasSlice';
+import { fetchEmpresas, fetchEmpresasInactivas } from '../store/empresasSlice';
 import { Empresa } from '../interfaces/Empresa';
-import { doc, updateDoc } from 'firebase/firestore';
+import { deleteDoc, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { toast } from 'react-toastify';
 
@@ -31,6 +31,7 @@ export default function Index() {
 
   useEffect(() => {
     dispatch(fetchEmpresas());
+    dispatch(fetchEmpresasInactivas())
   }, [dispatch]);
 
   useEffect(() => {
@@ -152,14 +153,17 @@ export default function Index() {
   });
 
   // Si hay búsqueda, filtramos también por texto y ordenamos
-  const datosFinales = busqueda.trim()
-    ? todasLasEmpresas.filter((empresa) =>
-      empresa.razon_social.toLowerCase().includes(busqueda.toLowerCase())
-    ).sort((a, b) => {
-      const fechaA = parseFechaEuropea(a.fecha_renovacion).getTime();
-      const fechaB = parseFechaEuropea(b.fecha_renovacion).getTime();
-      return fechaA - fechaB;
-    })
+  const datosBusqueda = busqueda.trim().toLowerCase();
+  const datosFinales = datosBusqueda
+    ? [...empresas, ...(inactivas || [])]
+      .filter((empresa) =>
+        empresa.razon_social.toLowerCase().includes(datosBusqueda)
+      )
+      .sort((a, b) => {
+        const fechaA = parseFechaEuropea(a.fecha_renovacion).getTime();
+        const fechaB = parseFechaEuropea(b.fecha_renovacion).getTime();
+        return fechaA - fechaB;
+      })
     : datosFiltradosOrdenados;
 
   const handlePreviousMonth = () => {
@@ -172,7 +176,6 @@ export default function Index() {
     setPaginaActual(0);
   };
 
-
   const actualizarPendientesDePago = async (empresas: Empresa[]) => {
     const hoy = new Date();
 
@@ -180,12 +183,26 @@ export default function Index() {
       const fechaRenovacion = parseFechaEuropea(empresa.fecha_renovacion);
 
       if (!isNaN(fechaRenovacion.getTime()) && fechaRenovacion < hoy && !empresa.pendiente_pago) {
-        try {
-          const ref = doc(db, "EmpresaList", empresa.id);
-          await updateDoc(ref, { pendiente_pago: true });
-          toast.success('Empresas pasaron a pendiente de pago por favor refresque la pagina')
-        } catch (err) {
-          console.error(`Error actualizando empresa ${empresa.id}`, err);
+        const refEmpresa = doc(db, "EmpresaList", empresa.id);
+
+        if (empresa.renovacion === false) {
+          try {
+            const refBaja = doc(db, "BajasList", empresa.id);
+            // Clonamos la empresa en BajasList
+            await setDoc(refBaja, empresa);
+            // Borramos de EmpresaList
+            await deleteDoc(refEmpresa);
+            toast.success(`Empresa ${empresa.razon_social} fue pasada a Bajas.`);
+          } catch (err) {
+            console.error(`Error al mover empresa ${empresa.id} a BajasList`, err);
+          }
+        } else {
+          try {
+            await updateDoc(refEmpresa, { pendiente_pago: true });
+            toast.success(`Empresa ${empresa.razon_social} marcada como pendiente de pago.`);
+          } catch (err) {
+            console.error(`Error actualizando empresa ${empresa.id}`, err);
+          }
         }
       }
     }
@@ -264,7 +281,7 @@ export default function Index() {
             <span className="text-sm text-gray-500">Intenta con otra búsqueda</span>
           </p>
         ) : (
-          <TablaOficinas datos={datosFinales} paginaActual={paginaActual} setPaginaActual={setPaginaActual} estado='activo' rutaDetalle='formActive' />
+          <TablaOficinas datos={datosFinales} paginaActual={paginaActual} setPaginaActual={setPaginaActual} estado={'activo'} rutaDetalle='formActive' />
         )}
       </div>
     </div>
