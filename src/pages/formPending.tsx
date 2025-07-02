@@ -344,7 +344,8 @@ export const FormPending = () => {
         const empresaActualizada: Empresa = {
             ...company,
             fecha_inicio: nuevaFechaInicio,
-            fecha_renovacion: nuevaFechaRenovacion
+            fecha_renovacion: nuevaFechaRenovacion,
+            pendiente_pago: false
         }
 
         // Paso 4: detectar cambios con respecto al original
