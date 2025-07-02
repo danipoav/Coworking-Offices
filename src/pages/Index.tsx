@@ -6,7 +6,7 @@ import { TbTimeDurationOff } from "react-icons/tb";
 import { MdOutlinePendingActions } from "react-icons/md";
 import TablaOficinas from '../components/TablaOficinas';
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchEmpresas } from '../store/empresasSlice';
+import { fetchEmpresas, fetchEmpresasInactivas } from '../store/empresasSlice';
 import { Empresa } from '../interfaces/Empresa';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
@@ -18,7 +18,7 @@ export default function Index() {
   const [busqueda, setBusqueda] = useState('');
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { empresas, loading, error } = useAppSelector((state) => state.empresas);
+  const { empresas, loading, error, inactivas } = useAppSelector((state) => state.empresas);
   const [mesInicialSeteado, setMesInicialSeteado] = useState(false);
 
   const ordenModalidad = {
@@ -30,6 +30,7 @@ export default function Index() {
 
   useEffect(() => {
     dispatch(fetchEmpresas());
+    dispatch(fetchEmpresasInactivas())
   }, [dispatch]);
 
   useEffect(() => {
@@ -140,14 +141,17 @@ export default function Index() {
   });
 
   // Si hay búsqueda, filtramos también por texto y ordenamos
-  const datosFinales = busqueda.trim()
-    ? noPendingCompanies.filter((empresa) =>
-      empresa.razon_social.toLowerCase().includes(busqueda.toLowerCase())
-    ).sort((a, b) => {
-      const fechaA = parseFechaEuropea(a.fecha_renovacion).getTime();
-      const fechaB = parseFechaEuropea(b.fecha_renovacion).getTime();
-      return fechaA - fechaB;
-    })
+  const datosBusqueda = busqueda.trim().toLowerCase();
+  const datosFinales = datosBusqueda
+    ? [...empresas, ...(inactivas || [])]
+      .filter((empresa) =>
+        empresa.razon_social.toLowerCase().includes(datosBusqueda)
+      )
+      .sort((a, b) => {
+        const fechaA = parseFechaEuropea(a.fecha_renovacion).getTime();
+        const fechaB = parseFechaEuropea(b.fecha_renovacion).getTime();
+        return fechaA - fechaB;
+      })
     : datosFiltradosOrdenados;
 
   const handlePreviousMonth = () => {
