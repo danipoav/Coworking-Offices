@@ -85,11 +85,13 @@ export const FormPending = () => {
 
         setCompany(prev => ({
             ...prev,
-            telefono_contacto: [...prev.telefono_contacto, trimmedPhone]
+            telefono_contacto: [
+                ...(Array.isArray(prev.telefono_contacto) ? prev.telefono_contacto : []),
+                trimmedPhone
+            ]
         }))
         setTelefono('')
     }
-
     const handleAddEmail = () => {
         const trimmedEmail = email.trim()
         if (!isValidEmail(trimmedEmail)) {
@@ -99,11 +101,13 @@ export const FormPending = () => {
 
         setCompany(prev => ({
             ...prev,
-            email: [...prev.email, trimmedEmail]
+            email: [
+                ...(Array.isArray(prev.email) ? prev.email : []),
+                trimmedEmail
+            ]
         }))
         setEmail('')
     }
-
     const handleRemoveTelefono = (index: number) => {
         setCompany(prev => ({
             ...prev,

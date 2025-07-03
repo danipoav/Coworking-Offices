@@ -77,22 +77,36 @@ export const FormInactive = () => {
     const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => setTelefono(e.target.value)
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)
     const handleAddTelefono = () => {
-        if (telefono.trim()) {
-            setCompany(prev => ({
-                ...prev,
-                telefono_contacto: [...prev.telefono_contacto, telefono.trim()]
-            }))
-            setTelefono('')
+        const trimmedPhone = telefono.trim()
+        if (!isValidPhone(trimmedPhone)) {
+            toast.error("Introduce un teléfono válido con al menos 9 dígitos (solo números, espacios y '+').")
+            return
         }
+
+        setCompany(prev => ({
+            ...prev,
+            telefono_contacto: [
+                ...(Array.isArray(prev.telefono_contacto) ? prev.telefono_contacto : []),
+                trimmedPhone
+            ]
+        }))
+        setTelefono('')
     }
     const handleAddEmail = () => {
-        if (email.trim()) {
-            setCompany(prev => ({
-                ...prev,
-                email: [...prev.email, email.trim()]
-            }))
-            setEmail('')
+        const trimmedEmail = email.trim()
+        if (!isValidEmail(trimmedEmail)) {
+            toast.error("Introduce un correo electrónico válido.")
+            return
         }
+
+        setCompany(prev => ({
+            ...prev,
+            email: [
+                ...(Array.isArray(prev.email) ? prev.email : []),
+                trimmedEmail
+            ]
+        }))
+        setEmail('')
     }
     const handleRemoveTelefono = (index: number) => {
         setCompany(prev => ({
@@ -430,7 +444,16 @@ export const FormInactive = () => {
             console.error("Error al dar de alta la empresa:", error);
             toast.error("Error al dar de alta la empresa.");
         }
-    };
+    }
+    const isValidEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        return emailRegex.test(email)
+    }
+    const isValidPhone = (telefono: string): boolean => {
+        const digitsOnly = telefono.replace(/[^\d]/g, '') // eliminamos todo lo que no sea número
+        const phoneRegex = /^[\d +]+$/
+        return phoneRegex.test(telefono) && digitsOnly.length >= 9
+    }
 
     return (<>
 
