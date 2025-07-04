@@ -442,7 +442,7 @@ export const FormInactive = () => {
         <styles.Container justifycontent="center">
             <styles.Column>
                 <styles.EntryVertical gap="3rem">
-                    <styles.BackButtonStyled onClick={() => navigate("/home")}>
+                    <styles.BackButtonStyled onClick={() => navigate("/inactive")}>
                         <FaArrowLeft />
                         Inicio
                     </styles.BackButtonStyled>
