@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useSelector } from 'react-redux'
 import type { RootState } from '../store'
 import type { Empresa } from '../interfaces/Empresa'
+import type { Historic } from "../interfaces/Historic"
 import { Modalidad } from "../enums/Modalidad"
 import { FaArrowLeft } from "react-icons/fa"
 import { useNavigate } from "react-router-dom"
@@ -10,7 +11,7 @@ import { PopupText } from "../components/popupText/popupText"
 import * as styles from '../common/styles/formStyles'
 import * as color from '../common/styles/colors'
 import { db } from "../firebaseConfig"
-import { collection, doc, getDoc, setDoc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore"
+import { doc, getDoc, setDoc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore"
 import { useAuth } from "../common/AuthContext"
 import { toast } from 'react-toastify'
 
@@ -47,6 +48,8 @@ export const FormInactive = () => {
         'mayo', 'junio', 'julio', 'agosto',
         'septiembre', 'octubre', 'noviembre', 'diciembre',
     ]
+    const [historicRows, setHistoricRows] = useState<Historic[]>([])
+    const [showHistoricRows, setShowHistoricRows] = useState(false)
 
     useEffect(() => {
         if (empresaSeleccionada) {
@@ -255,113 +258,51 @@ export const FormInactive = () => {
             toast.error(`Error actualizando empresa: ${error}`)
         }
     }
-    const downloadHistoric = async (companyId: string) => {
+    const displayHistoric = async (companyId: string) => {
+
+        if (historicRows.length > 0) {
+            setShowHistoricRows(prev => !prev)
+            return
+        }
+
         const historicoRef = doc(db, 'HistoricoList', companyId)
         const snapshot = await getDoc(historicoRef)
 
         if (!snapshot.exists()) {
             toast.error('No se encontraron cambios históricos para esta empresa.')
+            setHistoricRows([])
+            setShowHistoricRows(false)
             return
         }
 
         const data = snapshot.data()
-        const eventos = data.historial || []
+        const eventos = Array.isArray(data.historial) ? data.historial : []
 
         if (eventos.length === 0) {
             toast.info('El historial está vacío.')
+            setHistoricRows([])
+            setShowHistoricRows(false)
             return
         }
 
-        // Construir el contenido del archivo
-        let content = 'Fecha y hora\tUsuario\tCampo\tAntes\tDespués\n'
-
-        eventos.forEach((evento: any) => {
-            const date = new Date(evento.fecha).toLocaleString()
-            const user = evento.usuario
-
+        const rows: Historic[] = eventos.flatMap(evento => {
+            const fecha = new Date(evento.fecha).toLocaleString()
+            const usuario = evento.usuario
             const cambios = evento.cambios as Record<string, { antes: any, despues: any }>
-            Object.entries(cambios).forEach(([campo, { antes, despues }]) => {
-                content += `${date}\t${user}\t${campo}\t${JSON.stringify(antes)}\t${JSON.stringify(despues)}\n`
-            })
+
+            return Object.entries(cambios).map(([campo, { antes, despues }]) => ({
+                fecha,
+                usuario,
+                campo,
+                antes,
+                despues
+            }))
         })
 
-        // Crear y descargar archivo .txt
-        const blob = new Blob([content], { type: 'text/plaincharset=utf-8' })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `historial_${companyId}.txt`
-        a.click()
-        URL.revokeObjectURL(url)
-
-        toast.success('Historial descargado correctamente.')
+        setHistoricRows(rows)
+        setShowHistoricRows(true)
     }
-    const handleProcesarPago = () => {
-        const confirmado = window.confirm("¿Estás seguro de que quieres procesar el pago?")
-        if (confirmado) {
-            procesarPago()
-        }
-    }
-    const procesarPago = async () => {
-        if (!originalCompany) return
 
-        // Paso 1: calcular nueva fecha de inicio = día siguiente a la fecha_renovacion actual
-        const [dia, mes, anio] = company.fecha_renovacion.split('-').map(Number)
-        const fechaRenovacionActual = new Date(anio, mes - 1, dia)
-        const nuevaFechaInicioDate = new Date(fechaRenovacionActual)
-        nuevaFechaInicioDate.setDate(nuevaFechaInicioDate.getDate() + 1)
-
-        const nuevaFechaInicio = `${String(nuevaFechaInicioDate.getDate()).padStart(2, '0')}-${String(nuevaFechaInicioDate.getMonth() + 1).padStart(2, '0')}-${nuevaFechaInicioDate.getFullYear()}`
-
-        // Paso 2: determinar meses a sumar según modalidad
-        let mesesASumar: number
-
-        switch (company.modalidad) {
-            case Modalidad.trimestral:
-                mesesASumar = 2
-                break
-            case Modalidad.semestral:
-                mesesASumar = 5
-                break
-            case Modalidad.anual:
-            case Modalidad.myBusiness:
-                mesesASumar = 11
-                break
-            default:
-                throw new Error(`Modalidad no reconocida: ${company.modalidad}`)
-        }
-
-        const fechaRenovacionFinalDate = new Date(nuevaFechaInicioDate.getFullYear(), nuevaFechaInicioDate.getMonth() + mesesASumar + 1, 0) // último día del mes resultante
-        const nuevaFechaRenovacion = `${String(fechaRenovacionFinalDate.getDate()).padStart(2, '0')}-${String(fechaRenovacionFinalDate.getMonth() + 1).padStart(2, '0')}-${fechaRenovacionFinalDate.getFullYear()}`
-
-        // Paso 3: actualizar campos en el estado local
-        const empresaActualizada: Empresa = {
-            ...company,
-            fecha_inicio: nuevaFechaInicio,
-            fecha_renovacion: nuevaFechaRenovacion
-        }
-
-        // Paso 4: detectar cambios con respecto al original
-        const cambios = Object.entries(empresaActualizada).reduce((acc, [key, value]) => {
-            if (JSON.stringify(value) !== JSON.stringify((originalCompany as any)[key])) {
-                acc[key] = {
-                    antes: (originalCompany as any)[key],
-                    despues: value
-                }
-            }
-            return acc
-        }, {} as Record<string, { antes: any; despues: any }>)
-
-        if (Object.keys(cambios).length > 0) {
-            await saveHistoricalChanges(originalCompany.id, cambios)
-            await updateCompany(originalCompany.id, cambios)
-            setCompany(empresaActualizada)
-            setOriginalCompany(empresaActualizada)
-            toast.success("Pago procesado y fechas actualizadas con éxito.")
-        } else {
-            toast.info("No se detectaron cambios al procesar el pago.")
-        }
-    }
     const handleDarDeAltaEmpresa = () => {
         const esValido = validateCompany(company)
 
@@ -701,10 +642,9 @@ export const FormInactive = () => {
                 <styles.EntryHorizontal>
                     <Button
                         color={color.green}
-                        margin='0 0 0 0rem'
                         width="11rem"
                         padding="0.5em 0"
-                        onClick={() => downloadHistoric(company.id)} >
+                        onClick={() => displayHistoric(company.id)} >
                         <styles.IconHistorical />
                         Historial
                     </Button>
@@ -720,6 +660,32 @@ export const FormInactive = () => {
                 </styles.EntryHorizontal>
             </styles.Column>
         </styles.Container>
+
+        {showHistoricRows && (
+            <styles.TableHistoric>
+                <styles.TableHead>
+                    <styles.TableRow>
+                        <styles.TableHeader>Fecha y hora</styles.TableHeader>
+                        <styles.TableHeader>Usuario</styles.TableHeader>
+                        <styles.TableHeader>Campo</styles.TableHeader>
+                        <styles.TableHeader>Antes</styles.TableHeader>
+                        <styles.TableHeader>Después</styles.TableHeader>
+                    </styles.TableRow>
+                </styles.TableHead>
+
+                <styles.TableBody>
+                    {historicRows.map((row, i) => (
+                        <styles.TableRow key={i}>
+                            <styles.TableCell>{row.fecha}</styles.TableCell>
+                            <styles.TableCell>{row.usuario}</styles.TableCell>
+                            <styles.TableCell>{row.campo}</styles.TableCell>
+                            <styles.TableCell>{row.antes}</styles.TableCell>
+                            <styles.TableCell>{row.despues}</styles.TableCell>
+                        </styles.TableRow>
+                    ))}
+                </styles.TableBody>
+            </styles.TableHistoric>
+        )}
 
     </>)
 }

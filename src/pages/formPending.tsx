@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useSelector } from 'react-redux'
 import type { RootState } from '../store'
 import type { Empresa } from '../interfaces/Empresa'
+import type { Historic } from "../interfaces/Historic"
 import { Modalidad } from "../enums/Modalidad"
 import { FaArrowLeft } from "react-icons/fa"
 import { useNavigate } from "react-router-dom"
@@ -47,6 +48,8 @@ export const FormPending = () => {
         'mayo', 'junio', 'julio', 'agosto',
         'septiembre', 'octubre', 'noviembre', 'diciembre',
     ]
+    const [historicRows, setHistoricRows] = useState<Historic[]>([])
+    const [showHistoricRows, setShowHistoricRows] = useState(false)
 
     useEffect(() => {
         if (empresaSeleccionada) {
@@ -264,46 +267,49 @@ export const FormPending = () => {
             toast.error(`Error actualizando empresa: ${error}`)
         }
     }
-    const downloadHistoric = async (companyId: string) => {
+    const displayHistoric = async (companyId: string) => {
+
+        if (historicRows.length > 0) {
+            setShowHistoricRows(prev => !prev)
+            return
+        }
+
         const historicoRef = doc(db, 'HistoricoList', companyId)
         const snapshot = await getDoc(historicoRef)
 
         if (!snapshot.exists()) {
             toast.error('No se encontraron cambios históricos para esta empresa.')
+            setHistoricRows([])
+            setShowHistoricRows(false)
             return
         }
 
         const data = snapshot.data()
-        const eventos = data.historial || []
+        const eventos = Array.isArray(data.historial) ? data.historial : []
 
         if (eventos.length === 0) {
             toast.info('El historial está vacío.')
+            setHistoricRows([])
+            setShowHistoricRows(false)
             return
         }
 
-        // Construir el contenido del archivo
-        let content = 'Fecha y hora\tUsuario\tCampo\tAntes\tDespués\n'
-
-        eventos.forEach((evento: any) => {
-            const date = new Date(evento.fecha).toLocaleString()
-            const user = evento.usuario
-
+        const rows: Historic[] = eventos.flatMap(evento => {
+            const fecha = new Date(evento.fecha).toLocaleString()
+            const usuario = evento.usuario
             const cambios = evento.cambios as Record<string, { antes: any, despues: any }>
-            Object.entries(cambios).forEach(([campo, { antes, despues }]) => {
-                content += `${date}\t${user}\t${campo}\t${JSON.stringify(antes)}\t${JSON.stringify(despues)}\n`
-            })
+
+            return Object.entries(cambios).map(([campo, { antes, despues }]) => ({
+                fecha,
+                usuario,
+                campo,
+                antes,
+                despues
+            }))
         })
 
-        // Crear y descargar archivo .txt
-        const blob = new Blob([content], { type: 'text/plaincharset=utf-8' })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `historial_${companyId}.txt`
-        a.click()
-        URL.revokeObjectURL(url)
-
-        toast.success('Historial descargado correctamente.')
+        setHistoricRows(rows)
+        setShowHistoricRows(true)
     }
 
     const handleProcesarPago = () => {
@@ -678,7 +684,7 @@ export const FormPending = () => {
                         margin='0 0 0 1.5rem'
                         width="11rem"
                         padding="0.5em 0"
-                        onClick={() => downloadHistoric(company.id)} >
+                        onClick={() => displayHistoric(company.id)} >
                         <styles.IconHistorical />
                         Historial
                     </Button>
@@ -694,6 +700,32 @@ export const FormPending = () => {
                 </styles.EntryHorizontal>
             </styles.Column>
         </styles.Container>
+
+        {showHistoricRows && (
+            <styles.TableHistoric>
+                <styles.TableHead>
+                    <styles.TableRow>
+                        <styles.TableHeader>Fecha y hora</styles.TableHeader>
+                        <styles.TableHeader>Usuario</styles.TableHeader>
+                        <styles.TableHeader>Campo</styles.TableHeader>
+                        <styles.TableHeader>Antes</styles.TableHeader>
+                        <styles.TableHeader>Después</styles.TableHeader>
+                    </styles.TableRow>
+                </styles.TableHead>
+
+                <styles.TableBody>
+                    {historicRows.map((row, i) => (
+                        <styles.TableRow key={i}>
+                            <styles.TableCell>{row.fecha}</styles.TableCell>
+                            <styles.TableCell>{row.usuario}</styles.TableCell>
+                            <styles.TableCell>{row.campo}</styles.TableCell>
+                            <styles.TableCell>{row.antes}</styles.TableCell>
+                            <styles.TableCell>{row.despues}</styles.TableCell>
+                        </styles.TableRow>
+                    ))}
+                </styles.TableBody>
+            </styles.TableHistoric>
+        )}
 
     </>)
 }
