@@ -6,7 +6,7 @@ import { LuUserRoundPen } from "react-icons/lu"
 import { LuUserRoundPlus } from "react-icons/lu"
 import { LuUserRoundX } from "react-icons/lu"
 import { AiOutlineEuro } from "react-icons/ai"
-import { FiDownload } from "react-icons/fi"
+import { LuNewspaper } from "react-icons/lu"
 import { RiSave2Line } from "react-icons/ri"
 
 import * as color from '../../common/styles/colors'
@@ -205,7 +205,7 @@ export const IconProcessPay = styled(AiOutlineEuro)`
     color: ${color.white};
 `
 
-export const IconHistorical = styled(FiDownload)`
+export const IconHistorical = styled(LuNewspaper)`
     vertical-align: middle;
     padding: 0.2em;
     width: 2.25rem;
@@ -248,4 +248,43 @@ export const ArrayItem = styled.span`
     display: inline-flex;
     align-items: center;
     margin-right: 0.5rem;
-`;
+`
+
+export const TableHistoric = styled.table`
+    margin-top: 1rem;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 1em;
+    background-color: ${color.black};
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+`
+
+export const TableHead = styled.thead`
+    background-color: ${color.white};
+`
+
+export const TableBody = styled.tbody`
+    background-color: ${color.white};
+`
+
+export const TableRow = styled.tr`
+    &:hover {
+        background-color: ${color.grayBackgroundInput};
+    }
+`
+
+export const TableHeader = styled.th`
+    text-align: left;
+    padding: 0.75em;
+    border-bottom: 2px solid ${color.grayBorderText};
+    font-weight: 600;
+    color: #333;
+`
+
+export const TableCell = styled.td`
+    border-bottom: 1px solid ${color.grayBorderText};
+    padding: 0.75em;
+`
