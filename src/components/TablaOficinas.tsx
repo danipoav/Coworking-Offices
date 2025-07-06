@@ -91,7 +91,7 @@ export default function TablaOficinas({ datos, paginaActual, setPaginaActual, es
                             <td className="px-4 py-2 w-[180px] truncate">{empresa.titular}</td>
 
                             <td className="px-4 py-2 w-[130px] text-center">
-                                {(estado === 'activo' || estado === 'pendiente') ? empresa.fecha_renovacion : empresa.fecha_renovacion}
+                                {estado === 'activo' ? empresa.fecha_renovacion : estado === 'pendiente' ? empresa.fecha_inicio : empresa.fecha_renovacion}
                             </td>
                         </tr>
                     ))}

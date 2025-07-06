@@ -29,6 +29,7 @@ export default function PendientesPago() {
   };
 
   const empresasPendientes = empresas.filter(item => item.pendiente_pago);
+  console.log(empresasPendientes)
   const empresasValidas = empresasPendientes.filter(item => !isNaN(parseFechaEuropea(item.fecha_inicio).getTime()));
 
   const availableMonths = Array.from(

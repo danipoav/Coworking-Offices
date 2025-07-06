@@ -427,7 +427,7 @@ export const FormPending = () => {
         <styles.Container justifycontent="center">
             <styles.Column>
                 <styles.EntryVertical gap="3rem">
-                    <styles.BackButtonStyled onClick={() => navigate("/home")}>
+                    <styles.BackButtonStyled onClick={() => navigate("/pending")}>
                         <FaArrowLeft />
                         Inicio
                     </styles.BackButtonStyled>
