@@ -268,7 +268,6 @@ export const FormActive = () => {
             toast.success("cambios guardados con éxito");
         } catch (error) {
             toast.error(`Error guardando en historial: ${error}`);
-            console.log(error);
         }
     }
     const updateCompany = async (companyId: string, cambios: Record<string, any>) => {

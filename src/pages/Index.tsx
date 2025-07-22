@@ -27,7 +27,6 @@ export default function Index() {
     "Trimestral": 2,
     "Semestral": 3
   };
-  console.log(empresas.map(empresa => empresa.fecha_renovacion))
 
   useEffect(() => {
     dispatch(fetchEmpresas());
@@ -224,10 +223,21 @@ export default function Index() {
         />
         <button
           onClick={() => navigate('/pending')}
-          className="cursor-pointer bg-gradient-to-r from-gray-600 to-gray-800 text-white font-semibold border-none rounded-lg py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2">
+          className="
+    cursor-pointer
+    bg-gradient-to-r from-gray-600 to-gray-800
+    text-white font-semibold
+    border-none rounded-lg
+    py-3 px-8
+    shadow-md
+    hover:scale-105 transition-all
+    flex items-center gap-2
+    whitespace-nowrap overflow-hidden truncate
+  ">
           <MdOutlinePendingActions size={18} />
           Pendientes de pago
         </button>
+
         <button
           onClick={() => navigate('/inactive')}
           className="cursor-pointer bg-gradient-to-r from-red-700 to-red-900 text-white font-semibold border-none rounded-lg py-3 px-8 shadow-md hover:scale-105 transition-all flex items-center gap-2"

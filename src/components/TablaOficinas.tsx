@@ -17,7 +17,6 @@ export default function TablaOficinas({ datos, paginaActual, setPaginaActual, es
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
     const fechaActual = new Date()
-    console.log(fechaActual)
     const handleSeleccion = (empresa: Empresa) => {
         dispatch(setEmpresaSeleccionada(empresa))
         if (rutaDetalle) {
