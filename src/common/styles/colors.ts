@@ -3,6 +3,7 @@ export const red: string = ' #FF3b3b'
 export const green: string = ' #00B2A9'
 export const greenBlue: string = ' #009AA6'
 export const blue: string = ' #0075B0'
+export const grayBackground: string = ' #F3F4F6'
 
 // No corporative
 export const black: string = ' #000000'

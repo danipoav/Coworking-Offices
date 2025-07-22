@@ -60,6 +60,12 @@ export const Container = styled.div<{ justifycontent?: string }>`
     display: flex;
     justify-content: ${props => props.justifycontent || 'left'};
     gap: 7.5rem;
+    min-width: 800px;
+    background-color: ${color.grayBackground};
+
+    @media only screen and (max-width: 1100px) {
+        gap: 1rem;
+    }
 `
 
 export const Column = styled.div<{ padding?: string }>`
@@ -106,6 +112,10 @@ export const InputText = styled.input<{ width?: string; editable?: boolean }>`
 
     &::placeholder {
         color: ${props => (props.editable ? color.grayBorderText : color.grayBackgroundInput)};
+    }
+
+    @media only screen and (max-width: 1100px) {
+        width: 17.5rem;
     }
 `
 
